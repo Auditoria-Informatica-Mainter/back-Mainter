@@ -14,7 +14,7 @@ public class SubCategoria {
 
     @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
-    private Categoria idcategoria;
+    private Categoria categoria_id;
 
     //Constructor
     public SubCategoria(){}

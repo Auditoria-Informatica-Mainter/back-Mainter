@@ -14,7 +14,7 @@ public class Categoria {
     private String nombre;
     private String descripcion;
 
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "categoria_id", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubCategoria> subcategorias;
 
     //constructor
