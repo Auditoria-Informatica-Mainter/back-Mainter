@@ -86,16 +86,23 @@ public class UsuarioService {
 		Usuario usuario = new Usuario(
 				userDto.getNombre(),
 				userDto.getApellido(),
+				userDto.getEmail(),
 				passwordEncoder.encode(userDto.getPassword()),
 				userDto.getTelefono(),
-				userDto.getEmail(),
 				true, // estado
 				true, // disponible
 				rol
 		);
+
+		// Nuevos valores agregados
+		usuario.setCuentaNoExpirada(true);
+		usuario.setCuentaNoBloqueada(true);
+		usuario.setCredencialesNoExpiradas(true);
+
 		usuarioRepository.save(usuario);
 		return AuthResponse.builder().token(jwtService.getToken(usuario)).build();
 	}
+
 
 	public AuthResponse createUserAdmin(UsuarioDTO userDto) {
 		Rol rol = rolRepository.findByNombre("ADMIN")
@@ -104,13 +111,18 @@ public class UsuarioService {
 		Usuario usuario = new Usuario(
 				userDto.getNombre(),
 				userDto.getApellido(),
+				userDto.getEmail(),
 				passwordEncoder.encode(userDto.getPassword()),
 				userDto.getTelefono(),
-				userDto.getEmail(),
 				true,
 				true,
 				rol
 		);
+
+		usuario.setCuentaNoExpirada(true);
+		usuario.setCuentaNoBloqueada(true);
+		usuario.setCredencialesNoExpiradas(true);
+
 		usuarioRepository.save(usuario);
 		return AuthResponse.builder().token(jwtService.getToken(usuario)).build();
 	}
@@ -121,15 +133,21 @@ public class UsuarioService {
 		Usuario usuario = new Usuario(
 				userDto.getNombre(),
 				userDto.getApellido(),
+				userDto.getEmail(),
 				passwordEncoder.encode(userDto.getPassword()),
 				userDto.getTelefono(),
-				userDto.getEmail(),
 				true,
 				true,
 				rol
 		);
+
+		usuario.setCuentaNoExpirada(true);
+		usuario.setCuentaNoBloqueada(true);
+		usuario.setCredencialesNoExpiradas(true);
+
 		return usuarioRepository.save(usuario);
 	}
+
 
 	public AuthResponse login(LoginRequest loginRequest) {
 		authenticationManager.authenticate(
