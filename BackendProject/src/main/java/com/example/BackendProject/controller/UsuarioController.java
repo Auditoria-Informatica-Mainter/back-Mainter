@@ -160,7 +160,6 @@ public class UsuarioController {
 			);
 		}
 	}
-
 	@PostMapping
 	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<Usuario>> guardarUsuario(@Valid @RequestBody UsuarioDTO grupoDTO, BindingResult bindingResult) {
