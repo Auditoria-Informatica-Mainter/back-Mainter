@@ -152,9 +152,9 @@ public class UsuarioService {
 	public AuthResponse login(LoginRequest loginRequest) {
 		authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(
-						loginRequest.getEmail(), loginRequest.getPassword()));
+						loginRequest.getUsername(), loginRequest.getPassword()));
 
-		Usuario usuario = getUser(loginRequest.getEmail());
+		Usuario usuario = getUser(loginRequest.getUsername());
 		String token = jwtService.getToken(usuario);
 
 		return AuthResponse.builder()

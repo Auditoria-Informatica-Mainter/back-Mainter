@@ -17,7 +17,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -32,13 +31,18 @@ public class SegurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//				.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(auth -> auth
+				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers(
-								"/auth/**",
-								"/swagger-ui/**",
+								"/mrp/v3/api-docs/**",
+								"/mrp/swagger-ui/**",
+								"/mrp/swagger-ui.html",
+								"/mrp/swagger-resources/**",
+								"/mrp/webjars/**",
+								"/mrp/auth/**",
 								"/v3/api-docs/**",
+								"/swagger-ui/**",
 								"/swagger-ui.html",
 								"/swagger-resources/**",
 								"/webjars/**"
@@ -46,9 +50,8 @@ public class SegurityConfig {
 						.requestMatchers(HttpMethod.OPTIONS).permitAll()
 						.anyRequest().authenticated()
 				)
-				.sessionManagement(sess -> sess
-						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				)
+				.sessionManagement(sessionManager -> sessionManager
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authenticationProvider(authenticationProvider)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -57,14 +60,14 @@ public class SegurityConfig {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4200")); // Tu frontend
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
-		config.setAllowCredentials(true); // Si usas cookies o headers de autorización
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(List.of("*"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowCredentials(true);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", config);
+		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
 }
