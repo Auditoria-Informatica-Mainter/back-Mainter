@@ -17,6 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -31,18 +32,13 @@ public class SegurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
-//				.cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigurationSource()))
+				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(authorize -> authorize
+				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(
-								"/mrp/v3/api-docs/**",
-								"/mrp/swagger-ui/**",
-								"/mrp/swagger-ui.html",
-								"/mrp/swagger-resources/**",
-								"/mrp/webjars/**",
-								"/mrp/auth/**",
-								"/v3/api-docs/**",
+								"/auth/**",
 								"/swagger-ui/**",
+								"/v3/api-docs/**",
 								"/swagger-ui.html",
 								"/swagger-resources/**",
 								"/webjars/**"
@@ -50,8 +46,9 @@ public class SegurityConfig {
 						.requestMatchers(HttpMethod.OPTIONS).permitAll()
 						.anyRequest().authenticated()
 				)
-				.sessionManagement(sessionManager -> sessionManager
-						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.sessionManagement(sess -> sess
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				)
 				.authenticationProvider(authenticationProvider)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -60,14 +57,14 @@ public class SegurityConfig {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("*"));
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("*"));
-		configuration.setAllowCredentials(true);
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowedOrigins(List.of("http://localhost:4200")); // Tu frontend
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true); // Si usas cookies o headers de autorización
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
+		source.registerCorsConfiguration("/**", config);
 		return source;
 	}
 }
