@@ -3,6 +3,7 @@ package com.example.BackendProject.service;
 import com.example.BackendProject.dto.CategoriaDTO;
 import com.example.BackendProject.dto.SubCategoriaDTO;
 import com.example.BackendProject.entity.Categoria;
+import com.example.BackendProject.entity.Rol;
 import com.example.BackendProject.entity.SubCategoria;
 import com.example.BackendProject.repository.CategoriaRepository;
 import com.example.BackendProject.repository.SubCategoriaRepository;
@@ -65,4 +66,13 @@ public class CategoriaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la SubCategoria con el id " + id);
         }
     }
+
+    public Categoria obtenerRolnnombre(String nombre){
+		Optional<Categoria> categoria = categoriaRepository.findByNombre(nombre);
+		if (categoria.isPresent()) {
+			return categoria.get();
+		} else {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el rol con el id" + nombre);
+		}
+	}
 }

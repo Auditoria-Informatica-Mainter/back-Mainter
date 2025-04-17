@@ -1,6 +1,7 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.SubCategoriaDTO;
+import com.example.BackendProject.entity.Categoria;
 import com.example.BackendProject.entity.SubCategoria;
 import com.example.BackendProject.repository.SubCategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,4 +50,13 @@ public class SubCategoriaService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la subcategoría con el id " + id);
         }
     }
+
+    public SubCategoria obtenerRolnnombre(String nombre){
+        Optional<SubCategoria> SubCategoria = subcategoriaRepository.findByNombre(nombre);
+        if (SubCategoria.isPresent()) {
+            return SubCategoria.get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el rol con el id" + nombre);
+        }
+	}
 }

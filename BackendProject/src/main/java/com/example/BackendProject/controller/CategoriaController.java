@@ -2,6 +2,7 @@ package com.example.BackendProject.controller;
 
 import com.example.BackendProject.dto.CategoriaDTO;
 import com.example.BackendProject.entity.Categoria;
+import com.example.BackendProject.entity.Rol;
 import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,20 @@ public class CategoriaController {
                 ApiResponse.<Categoria>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("Categoría encontrada")
+                        .data(categoria)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+      // Endpoint para obtener un rol específico por nombre
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<ApiResponse<Categoria>> obtenerCategoriaPorNombre(@PathVariable String nombre) {
+        Categoria categoria = categoriaService.obtenerRolnnombre(nombre);
+        return new ResponseEntity<>(
+                ApiResponse.<Categoria>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Rol encontrado")
                         .data(categoria)
                         .build(),
                 HttpStatus.OK

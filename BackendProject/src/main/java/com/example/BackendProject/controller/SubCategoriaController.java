@@ -1,6 +1,7 @@
 package com.example.BackendProject.controller;
 
 import com.example.BackendProject.dto.SubCategoriaDTO;
+import com.example.BackendProject.entity.Categoria;
 import com.example.BackendProject.entity.SubCategoria;
 import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.SubCategoriaService;
@@ -39,6 +40,20 @@ public class SubCategoriaController {
                         .statusCode(HttpStatus.OK.value())
                         .message("Subcategoría encontrada")
                         .data(subCategoria)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+          // Endpoint para obtener un rol específico por nombre
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<ApiResponse<SubCategoria>> obtenerCategoriaPorNombre(@PathVariable String nombre) {
+        SubCategoria subcategoria = subcategoriaservice.obtenerRolnnombre(nombre);
+        return new ResponseEntity<>(
+                ApiResponse.<SubCategoria>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Rol encontrado")
+                        .data(subcategoria)
                         .build(),
                 HttpStatus.OK
         );
