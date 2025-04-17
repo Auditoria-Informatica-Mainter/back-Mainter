@@ -32,7 +32,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
         String path = request.getRequestURI();
 
-        if (path.contains("/auth")) {
+        // Permitir acceso a endpoints de autenticación y Swagger sin token
+        if (path.contains("/auth") || 
+            path.contains("/swagger-ui") || 
+            path.contains("/v3/api-docs") || 
+            path.contains("/swagger-resources") ||
+            path.contains("/webjars")) {
             filterChain.doFilter(request, response);
             return;
         }

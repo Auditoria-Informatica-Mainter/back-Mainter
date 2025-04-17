@@ -28,7 +28,6 @@ public class UsuarioController {
 	private UsuarioService service;
 
 	@GetMapping
-	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<List<Usuario>>> listarUsuarios(@RequestParam(value = "search", required = false) String searchTerm) {
 		List<Usuario> user;
 		if (searchTerm != null && !searchTerm.isEmpty()) {
@@ -56,7 +55,6 @@ public class UsuarioController {
 
 
 	@GetMapping("/{id}")
-	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<Usuario>> obtenerUsuario(@PathVariable Long id) {
 		try {
 			Usuario usuariosOpt = service.obtenerUserPorId(id);
@@ -81,7 +79,6 @@ public class UsuarioController {
 
 
 	@PatchMapping("/{id}")
-	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<Usuario>> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioDTO userDTO, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			List<String> errors = bindingResult.getAllErrors().stream()
@@ -116,7 +113,6 @@ public class UsuarioController {
 	}
 
 	@PatchMapping("/{id}/desactivar")
-	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<Void>> eliminarUsuario(@PathVariable Long id) {
 		try {
 			service.deleteUser(id);
@@ -139,7 +135,6 @@ public class UsuarioController {
 	}
 
 	@PatchMapping("/{id}/activar")
-	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<Void>> activarUsuario(@PathVariable Long id) {
 		try {
 			service.activeUser(id);
@@ -161,7 +156,6 @@ public class UsuarioController {
 		}
 	}
 	@PostMapping
-	@PreAuthorize("hasAuthority('PERMISO_GESTIONAR_PERSONAL')")
 	public ResponseEntity<ApiResponse<Usuario>> guardarUsuario(@Valid @RequestBody UsuarioDTO grupoDTO, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			List<String> errors = bindingResult.getAllErrors().stream()
@@ -174,6 +168,18 @@ public class UsuarioController {
 					HttpStatus.BAD_REQUEST
 			);
 		}
+		
+		// Validar manualmente que el password no sea nulo o vacío para creación de usuarios
+		if (grupoDTO.getPassword() == null || grupoDTO.getPassword().isEmpty()) {
+			return new ResponseEntity<>(
+					ApiResponse.<Usuario>builder()
+							.statusCode(HttpStatus.BAD_REQUEST.value())
+							.message("La contraseña es obligatoria para el registro de usuarios")
+							.build(),
+					HttpStatus.BAD_REQUEST
+			);
+		}
+		
 		try {
 			Usuario user = service.registrarUser(grupoDTO);
 			return new ResponseEntity<>(
