@@ -1,26 +1,31 @@
 package com.example.BackendProject.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "subcategoria")
 @Entity
-@Table(name = "subcategorias")
 public class SubCategoria {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String nombre;
+
     private String descripcion;
 
-    @ManyToOne
-    @JoinColumn(name = "categoria_id", nullable = false)
-    private Categoria categoria_id;
-
-    //Constructor
-    public SubCategoria(){}
-    public SubCategoria(String nombre, String descripcion){
-        this.nombre=nombre;
-        this.descripcion=descripcion;
+    public SubCategoria(String nombre, String descripcion) {
+        this.nombre = nombre;
+        this.descripcion = descripcion;
     }
-
 }
