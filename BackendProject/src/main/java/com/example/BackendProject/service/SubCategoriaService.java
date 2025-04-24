@@ -1,7 +1,6 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.SubCategoriaDTO;
-import com.example.BackendProject.entity.Categoria;
 import com.example.BackendProject.entity.SubCategoria;
 import com.example.BackendProject.repository.SubCategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +17,26 @@ public class SubCategoriaService {
     @Autowired
     private SubCategoriaRepository subcategoriaRepository;
 
-    // Listar todas las subcategorías
     public List<SubCategoria> listarSubcategorias() {
         return subcategoriaRepository.findAll();
     }
 
-    // Guardar una nueva subcategoría
     public SubCategoria guardarSubcategoria(SubCategoriaDTO dto) {
         SubCategoria subcategoria = new SubCategoria(dto.getNombre(), dto.getDescripcion());
         return subcategoriaRepository.save(subcategoria);
     }
 
-    // Modificar una subcategoría existente
-    public SubCategoria modificarSubcategoria(Long id, String nombre, String descripcion) {
+    public SubCategoria modificarSubcategoria(Long id, SubCategoriaDTO dto) {
         SubCategoria subcategoria = obtenerSubcategoria(id);
-        if (nombre != null && !nombre.isEmpty()) {
-            subcategoria.setNombre(nombre);
+        if (dto.getNombre() != null && !dto.getNombre().isEmpty()) {
+            subcategoria.setNombre(dto.getNombre());
         }
-        if (descripcion != null && !descripcion.isEmpty()) {
-            subcategoria.setDescripcion(descripcion);
+        if (dto.getDescripcion() != null && !dto.getDescripcion().isEmpty()) {
+            subcategoria.setDescripcion(dto.getDescripcion());
         }
         return subcategoriaRepository.save(subcategoria);
     }
 
-    // Obtener una subcategoría por su ID
     public SubCategoria obtenerSubcategoria(Long id) {
         Optional<SubCategoria> subcategoria = subcategoriaRepository.findById(id);
         if (subcategoria.isPresent()) {
@@ -51,12 +46,12 @@ public class SubCategoriaService {
         }
     }
 
-    public SubCategoria obtenerRolnnombre(String nombre){
-        Optional<SubCategoria> SubCategoria = subcategoriaRepository.findByNombre(nombre);
-        if (SubCategoria.isPresent()) {
-            return SubCategoria.get();
+    public SubCategoria obtenerRolnnombre(String nombre) {
+        Optional<SubCategoria> subcategoria = subcategoriaRepository.findByNombre(nombre);
+        if (subcategoria.isPresent()) {
+            return subcategoria.get();
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el rol con el id" + nombre);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la subcategoría con el nombre: " + nombre);
         }
-	}
+    }
 }

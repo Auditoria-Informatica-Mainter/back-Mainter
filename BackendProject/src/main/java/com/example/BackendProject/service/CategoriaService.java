@@ -43,8 +43,8 @@ public class CategoriaService {
             categoria.setDescripcion(dto.getDescripcion());
         }
         if (dto.getSubCategoriaId() != null) {
-            SubCategoria SubCategoria = obtenerSubCategoria(dto.getSubCategoriaId());
-            categoria.setSubcategoria(SubCategoria);
+            SubCategoria subCategoria = obtenerSubCategoria(dto.getSubCategoriaId());
+            categoria.setSubcategoria(subCategoria);
         }
         return categoriaRepository.save(categoria);
     }
