@@ -35,7 +35,10 @@ public class SegurityConfig {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.anyRequest().permitAll()
+						// Permitir explícitamente Swagger UI y otros endpoints necesarios
+						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
+						.requestMatchers("/auth/**").permitAll()
+						.anyRequest().authenticated()
 				)
 				.sessionManagement(sess -> sess
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -50,19 +53,19 @@ public class SegurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		
-		// Permitir cualquier origen
+		// Permitir todos los orígenes
 		config.addAllowedOriginPattern("*");
 		
-		// Permitir todos los métodos HTTP
+		// Configurar métodos HTTP permitidos
 		config.addAllowedMethod("*");
 		
 		// Permitir todos los headers
 		config.addAllowedHeader("*");
 		
-		// Exponer el header Authorization
+		// Exponer headers necesarios
 		config.addExposedHeader("Authorization");
 		
-		// Permitir credenciales (cookies, auth headers)
+		// Permitir credenciales
 		config.setAllowCredentials(true);
 		
 		// Tiempo de caché para respuestas pre-flight
