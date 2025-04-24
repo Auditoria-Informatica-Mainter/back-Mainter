@@ -63,8 +63,12 @@ public class UsuarioService {
 	}
 
 	public Usuario getUser(String email) {
-		return usuarioRepository.findByEmail(email)
-				.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+		try {
+			return usuarioRepository.findByEmail(email)
+					.orElseThrow(() -> new UsernameNotFoundException("Usuario con email " + email + " no encontrado"));
+		} catch (Exception e) {
+			throw new RuntimeException("Error al buscar usuario: " + e.getMessage(), e);
+		}
 	}
 
 	public Long getUsuarioById(String email) {
@@ -82,89 +86,142 @@ public class UsuarioService {
 
 	@LoggableAction
 	public AuthResponse createUser(UsuarioDTO userDto) {
-		Rol rol = rolService.obtenerRol(userDto.getRolid());
-		Usuario usuario = new Usuario(
-				userDto.getNombre(),
-				userDto.getApellido(),
-				userDto.getEmail(),
-				passwordEncoder.encode(userDto.getPassword()),
-				userDto.getTelefono(),
-				true, // estado
-				true, // disponible
-				rol
-		);
+		try {
+			// Validar si el usuario ya existe
+			if (usuarioRepository.findByEmail(userDto.getEmail()).isPresent()) {
+				throw new RuntimeException("Ya existe un usuario con el email: " + userDto.getEmail());
+			}
+			
+			Rol rol = rolService.obtenerRol(userDto.getRolid());
+			Usuario usuario = new Usuario(
+					userDto.getNombre(),
+					userDto.getApellido(),
+					userDto.getEmail(),
+					passwordEncoder.encode(userDto.getPassword()),
+					userDto.getTelefono(),
+					true, // estado
+					true, // disponible
+					rol
+			);
 
-		// Nuevos valores agregados
-		usuario.setCuentaNoExpirada(true);
-		usuario.setCuentaNoBloqueada(true);
-		usuario.setCredencialesNoExpiradas(true);
+			// Nuevos valores agregados
+			usuario.setCuentaNoExpirada(true);
+			usuario.setCuentaNoBloqueada(true);
+			usuario.setCredencialesNoExpiradas(true);
 
-		usuarioRepository.save(usuario);
-		return AuthResponse.builder().token(jwtService.getToken(usuario)).build();
+			Usuario usuarioGuardado = usuarioRepository.save(usuario);
+			String token = jwtService.getToken(usuarioGuardado);
+			
+			// Devolver respuesta completa con todos los datos del usuario
+			return AuthResponse.builder()
+					.token(token)
+					.email(usuarioGuardado.getEmail())
+					.nombre(usuarioGuardado.getNombre())
+					.apellido(usuarioGuardado.getApellido())
+					.id(usuarioGuardado.getId())
+					.role(usuarioGuardado.getRol())
+					.build();
+		} catch (Exception e) {
+			throw new RuntimeException("Error al crear usuario: " + e.getMessage(), e);
+		}
 	}
 
 
 	public AuthResponse createUserAdmin(UsuarioDTO userDto) {
-		Rol rol = rolRepository.findByNombre("ADMIN")
-				.orElseGet(() -> rolRepository.save(new Rol("ADMIN")));
+		try {
+			// Validar si el usuario ya existe
+			if (usuarioRepository.findByEmail(userDto.getEmail()).isPresent()) {
+				throw new RuntimeException("Ya existe un usuario con el email: " + userDto.getEmail());
+			}
+			
+			Rol rol = rolRepository.findByNombre("ADMIN")
+					.orElseGet(() -> rolRepository.save(new Rol("ADMIN")));
 
-		Usuario usuario = new Usuario(
-				userDto.getNombre(),
-				userDto.getApellido(),
-				userDto.getEmail(),
-				passwordEncoder.encode(userDto.getPassword()),
-				userDto.getTelefono(),
-				true,
-				true,
-				rol
-		);
+			Usuario usuario = new Usuario(
+					userDto.getNombre(),
+					userDto.getApellido(),
+					userDto.getEmail(),
+					passwordEncoder.encode(userDto.getPassword()),
+					userDto.getTelefono(),
+					true,
+					true,
+					rol
+			);
 
-		usuario.setCuentaNoExpirada(true);
-		usuario.setCuentaNoBloqueada(true);
-		usuario.setCredencialesNoExpiradas(true);
+			usuario.setCuentaNoExpirada(true);
+			usuario.setCuentaNoBloqueada(true);
+			usuario.setCredencialesNoExpiradas(true);
 
-		usuarioRepository.save(usuario);
-		return AuthResponse.builder().token(jwtService.getToken(usuario)).build();
+			Usuario usuarioGuardado = usuarioRepository.save(usuario);
+			String token = jwtService.getToken(usuarioGuardado);
+			
+			// Devolver respuesta completa con todos los datos del usuario
+			return AuthResponse.builder()
+					.token(token)
+					.email(usuarioGuardado.getEmail())
+					.nombre(usuarioGuardado.getNombre())
+					.apellido(usuarioGuardado.getApellido())
+					.id(usuarioGuardado.getId())
+					.role(usuarioGuardado.getRol())
+					.build();
+		} catch (Exception e) {
+			throw new RuntimeException("Error al crear usuario administrador: " + e.getMessage(), e);
+		}
 	}
 
 	@LoggableAction
 	public Usuario registrarUser(UsuarioDTO userDto) {
-		Rol rol = rolService.obtenerRol(userDto.getRolid());
-		Usuario usuario = new Usuario(
-				userDto.getNombre(),
-				userDto.getApellido(),
-				userDto.getEmail(),
-				passwordEncoder.encode(userDto.getPassword()),
-				userDto.getTelefono(),
-				true,
-				true,
-				rol
-		);
+		try {
+			// Validar si el usuario ya existe
+			if (usuarioRepository.findByEmail(userDto.getEmail()).isPresent()) {
+				throw new RuntimeException("Ya existe un usuario con el email: " + userDto.getEmail());
+			}
+			
+			Rol rol = rolService.obtenerRol(userDto.getRolid());
+			Usuario usuario = new Usuario(
+					userDto.getNombre(),
+					userDto.getApellido(),
+					userDto.getEmail(),
+					passwordEncoder.encode(userDto.getPassword()),
+					userDto.getTelefono(),
+					true,
+					true,
+					rol
+			);
 
-		usuario.setCuentaNoExpirada(true);
-		usuario.setCuentaNoBloqueada(true);
-		usuario.setCredencialesNoExpiradas(true);
+			usuario.setCuentaNoExpirada(true);
+			usuario.setCuentaNoBloqueada(true);
+			usuario.setCredencialesNoExpiradas(true);
 
-		return usuarioRepository.save(usuario);
+			return usuarioRepository.save(usuario);
+		} catch (Exception e) {
+			throw new RuntimeException("Error al registrar usuario: " + e.getMessage(), e);
+		}
 	}
 
 
 	public AuthResponse login(LoginRequest loginRequest) {
-		authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(
-						loginRequest.getEmail(), loginRequest.getPassword()));
+		try {
+			authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(
+							loginRequest.getEmail(), loginRequest.getPassword()));
 
-		Usuario usuario = getUser(loginRequest.getEmail());
-		String token = jwtService.getToken(usuario);
+			Usuario usuario = getUser(loginRequest.getEmail());
+			String token = jwtService.getToken(usuario);
 
-		return AuthResponse.builder()
-				.token(token)
-				.email(usuario.getEmail())
-				.nombre(usuario.getNombre())
-				.apellido(usuario.getApellido())
-				.id(usuario.getId())
-				.role(usuario.getRol())
-				.build();
+			return AuthResponse.builder()
+					.token(token)
+					.email(usuario.getEmail())
+					.nombre(usuario.getNombre())
+					.apellido(usuario.getApellido())
+					.id(usuario.getId())
+					.role(usuario.getRol())
+					.build();
+		} catch (UsernameNotFoundException e) {
+			throw new UsernameNotFoundException("Usuario con email " + loginRequest.getEmail() + " no encontrado");
+		} catch (Exception e) {
+			throw new RuntimeException("Error en el inicio de sesión: " + e.getMessage(), e);
+		}
 	}
 
 	public AuthResponse loader(Authentication authentication) {
@@ -188,8 +245,17 @@ public class UsuarioService {
 		user.setApellido(userDto.getApellido());
 		user.setEmail(userDto.getEmail());
 		user.setTelefono(userDto.getTelefono());
-		user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-		user.setRol(rolService.obtenerRol(userDto.getRolid()));
+		
+		// Solo actualizar el password si se proporciona uno nuevo
+		if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+			user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+		}
+		
+		// Actualizar el rol si se proporciona uno nuevo
+		if (userDto.getRolid() != null) {
+			user.setRol(rolService.obtenerRol(userDto.getRolid()));
+		}
+		
 		return usuarioRepository.save(user);
 	}
 

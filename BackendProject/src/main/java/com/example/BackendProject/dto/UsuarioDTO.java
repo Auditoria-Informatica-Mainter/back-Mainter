@@ -31,7 +31,6 @@ public class UsuarioDTO {
     @Email(message = "El email debe ser válido")
     private String email;
     
-    @NotEmpty(message = "ingrese su contraseña")
     private String password;
 
 

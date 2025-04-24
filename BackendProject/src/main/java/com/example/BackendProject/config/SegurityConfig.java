@@ -35,15 +35,9 @@ public class SegurityConfig {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(
-								"/auth/**",
-								"/swagger-ui/**",
-								"/v3/api-docs/**",
-								"/swagger-ui.html",
-								"/swagger-resources/**",
-								"/webjars/**"
-						).permitAll()
-						.requestMatchers(HttpMethod.OPTIONS).permitAll()
+						// Permitir explícitamente Swagger UI y otros endpoints necesarios
+						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
+						.requestMatchers("/auth/**").permitAll()
 						.anyRequest().authenticated()
 				)
 				.sessionManagement(sess -> sess
@@ -58,10 +52,24 @@ public class SegurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4200")); // Tu frontend
-		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
-		config.setAllowCredentials(true); // Si usas cookies o headers de autorización
+		
+		// Permitir todos los orígenes
+		config.addAllowedOriginPattern("*");
+		
+		// Configurar métodos HTTP permitidos
+		config.addAllowedMethod("*");
+		
+		// Permitir todos los headers
+		config.addAllowedHeader("*");
+		
+		// Exponer headers necesarios
+		config.addExposedHeader("Authorization");
+		
+		// Permitir credenciales
+		config.setAllowCredentials(true);
+		
+		// Tiempo de caché para respuestas pre-flight
+		config.setMaxAge(3600L);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);
