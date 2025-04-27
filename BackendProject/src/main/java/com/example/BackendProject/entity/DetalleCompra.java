@@ -11,28 +11,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Entidad que representa una compra en el sistema (proxy a Pedido).
+ * Entidad que representa un detalle de compra en el sistema (proxy a DetallePedidoCompra).
  * Esta clase existe para mantener compatibilidad con el diagrama de clases,
- * pero toda la funcionalidad se implementa a través de Pedido.
+ * pero toda la funcionalidad se implementa a través de DetallePedidoCompra.
  */
 @Entity
-@Table(name = "compra")
+@Table(name = "detalle_compra")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Compra {
+public class DetalleCompra {
     @Id
     private Long id;
     
     @OneToOne
     @MapsId
     @JoinColumn(name = "id")
-    private Pedido pedido;
+    private DetallePedidoCompra detallePedido;
     
     /**
-     * Constructor con pedido
+     * Constructor con DetallePedidoCompra
      */
-    public Compra(Pedido pedido) {
-        this.pedido = pedido;
+    public DetalleCompra(DetallePedidoCompra detallePedido) {
+        this.detallePedido = detallePedido;
     }
-}
+} 

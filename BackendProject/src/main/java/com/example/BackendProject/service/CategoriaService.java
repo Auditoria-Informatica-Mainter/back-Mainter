@@ -1,9 +1,7 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.CategoriaDTO;
-import com.example.BackendProject.dto.SubCategoriaDTO;
 import com.example.BackendProject.entity.Categoria;
-import com.example.BackendProject.entity.Rol;
 import com.example.BackendProject.entity.SubCategoria;
 import com.example.BackendProject.repository.CategoriaRepository;
 import com.example.BackendProject.repository.SubCategoriaRepository;
@@ -13,66 +11,112 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Servicio para la gestión de categorías.
+ * Proporciona métodos para administrar las categorías de productos y materiales.
+ */
 @Service
 public class CategoriaService {
-
+    
+    private final CategoriaRepository categoriaRepository;
+    private final SubCategoriaRepository subCategoriaRepository;
+    
     @Autowired
-    private CategoriaRepository categoriaRepository;
-
-    @Autowired
-    private SubCategoriaRepository SubCategoriaRepository;
-
+    public CategoriaService(CategoriaRepository categoriaRepository, SubCategoriaRepository subCategoriaRepository) {
+        this.categoriaRepository = categoriaRepository;
+        this.subCategoriaRepository = subCategoriaRepository;
+    }
+    
+    /**
+     * Obtiene todas las categorías
+     * @return lista de categorías
+     */
     public List<Categoria> listarCategorias() {
         return categoriaRepository.findAll();
     }
-
-    public Categoria guardarCategoria(CategoriaDTO dto) {
-        SubCategoria subCategoria = obtenerSubCategoria(dto.getSubCategoriaId());
-        Categoria categoria = new Categoria(dto.getNombre(), dto.getDescripcion(), subCategoria);
-        return categoriaRepository.save(categoria);
-    }
-
-    public Categoria modificarCategoria(Long id, CategoriaDTO dto) {
-        Categoria categoria = obtenerCategoria(id);
-        if (dto.getNombre() != null && !dto.getNombre().isEmpty()) {
-            categoria.setNombre(dto.getNombre());
-        }
-        if (dto.getDescripcion() != null && !dto.getDescripcion().isEmpty()) {
-            categoria.setDescripcion(dto.getDescripcion());
-        }
-        if (dto.getSubCategoriaId() != null) {
-            SubCategoria subCategoria = obtenerSubCategoria(dto.getSubCategoriaId());
-            categoria.setSubcategoria(subCategoria);
-        }
-        return categoriaRepository.save(categoria);
-    }
-
+    
+    /**
+     * Obtiene una categoría por su ID
+     * @param id el ID de la categoría
+     * @return la categoría encontrada
+     * @throws ResponseStatusException si no se encuentra la categoría
+     */
     public Categoria obtenerCategoria(Long id) {
-        Optional<Categoria> categoria = categoriaRepository.findById(id);
-        if (categoria.isPresent()) {
-            return categoria.get();
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la categoria con el id " + id);
-        }
+        return categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                        "Categoría no encontrada con ID: " + id));
     }
-
-    public SubCategoria obtenerSubCategoria(Long id) {
-        Optional<SubCategoria> SubCategoria = SubCategoriaRepository.findById(id);
-        if (SubCategoria.isPresent()) {
-            return SubCategoria.get();
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe la SubCategoria con el id " + id);
-        }
+    
+    /**
+     * Obtiene una categoría por su nombre
+     * @param nombre el nombre de la categoría
+     * @return la categoría encontrada
+     * @throws ResponseStatusException si no se encuentra la categoría
+     */
+    public Categoria obtenerCategoriaPorNombre(String nombre) {
+        return categoriaRepository.findByNombre(nombre)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                        "Categoría no encontrada con nombre: " + nombre));
     }
-
-    public Categoria obtenerRolnnombre(String nombre){
-		Optional<Categoria> categoria = categoriaRepository.findByNombre(nombre);
-		if (categoria.isPresent()) {
-			return categoria.get();
-		} else {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el rol con el id" + nombre);
-		}
-	}
+    
+    /**
+     * Crea una nueva categoría
+     * @param categoriaDTO datos de la nueva categoría
+     * @return la categoría creada
+     */
+    public Categoria guardarCategoria(CategoriaDTO categoriaDTO) {
+        Categoria categoria;
+        
+        if (categoriaDTO.getSubCategoriaId() != null) {
+            SubCategoria subCategoria = subCategoriaRepository.findById(categoriaDTO.getSubCategoriaId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                            "Subcategoría no encontrada con ID: " + categoriaDTO.getSubCategoriaId()));
+            
+            categoria = new Categoria(categoriaDTO.getNombre(), categoriaDTO.getDescripcion(), subCategoria);
+        } else {
+            categoria = new Categoria(categoriaDTO.getNombre(), categoriaDTO.getDescripcion());
+        }
+        
+        categoria.setActivo(true);
+        return categoriaRepository.save(categoria);
+    }
+    
+    /**
+     * Actualiza una categoría existente
+     * @param id el ID de la categoría a actualizar
+     * @param categoriaDTO los nuevos datos de la categoría
+     * @return la categoría actualizada
+     * @throws ResponseStatusException si no se encuentra la categoría
+     */
+    public Categoria modificarCategoria(Long id, CategoriaDTO categoriaDTO) {
+        Categoria categoria = obtenerCategoria(id);
+        
+        categoria.setNombre(categoriaDTO.getNombre());
+        categoria.setDescripcion(categoriaDTO.getDescripcion());
+        
+        if (categoriaDTO.getSubCategoriaId() != null) {
+            SubCategoria subCategoria = subCategoriaRepository.findById(categoriaDTO.getSubCategoriaId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                            "Subcategoría no encontrada con ID: " + categoriaDTO.getSubCategoriaId()));
+            
+            categoria.setSubCategoria(subCategoria);
+        }
+        
+        return categoriaRepository.save(categoria);
+    }
+    
+    /**
+     * Obtiene las categorías por subcategoría
+     * @param subCategoriaId el ID de la subcategoría
+     * @return lista de categorías de la subcategoría
+     * @throws ResponseStatusException si no se encuentra la subcategoría
+     */
+    public List<Categoria> obtenerCategoriasPorSubCategoria(Long subCategoriaId) {
+        SubCategoria subCategoria = subCategoriaRepository.findById(subCategoriaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                        "Subcategoría no encontrada con ID: " + subCategoriaId));
+        
+        return categoriaRepository.findBySubCategoria(subCategoria);
+    }
 }
