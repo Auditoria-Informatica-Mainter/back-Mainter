@@ -5,14 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO para transferir datos de categorías
+ * DTO para la relación entre proveedores y materiales
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoriaDTO {
-    private Long id;
-    private String nombre;
+public class ProveedorMaterialDTO {
+    private Long materialId;
+    private Double precio;
+    private Integer cantidadMinima;
     private String descripcion;
-    private Long subCategoriaId;
-}
+} 
