@@ -3,6 +3,7 @@ package com.example.BackendProject.controller;
 import com.example.BackendProject.entity.Proveedor;
 import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.ProveedorService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ public class ProveedorController {
         this.proveedorService = proveedorService;
     }
     
+    @Operation(summary = "Obtener todos los proveedores")
     @GetMapping
     public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerTodosLosProveedores() {
         List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
@@ -41,6 +43,7 @@ public class ProveedorController {
         );
     }
     
+    @Operation(summary = "Obtener un proveedor por ID")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<Proveedor>> obtenerProveedorPorId(@PathVariable Long id) {
         return proveedorService.obtenerProveedorPorId(id)
@@ -59,6 +62,7 @@ public class ProveedorController {
                         HttpStatus.NOT_FOUND));
     }
     
+    @Operation(summary = "Obtener un proveedor por nombre")
     @GetMapping("/nombre/{nombre}")
     public ResponseEntity<ApiResponse<Proveedor>> obtenerProveedorPorNombre(@PathVariable String nombre) {
         return proveedorService.obtenerProveedorPorNombre(nombre)
@@ -77,6 +81,7 @@ public class ProveedorController {
                         HttpStatus.NOT_FOUND));
     }
     
+    @Operation(summary = "Buscar proveedores por término")
     @GetMapping("/buscar")
     public ResponseEntity<ApiResponse<List<Proveedor>>> buscarProveedoresPorNombre(@RequestParam("texto") String texto) {
         List<Proveedor> proveedores = proveedorService.buscarProveedoresPorNombre(texto);
@@ -90,6 +95,7 @@ public class ProveedorController {
         );
     }
     
+    @Operation(summary = "Obtener proveedores por estado activo/inactivo")
     @GetMapping("/estado")
     public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedoresPorEstado(@RequestParam("activo") Boolean activo) {
         List<Proveedor> proveedores = proveedorService.obtenerProveedoresPorEstado(activo);
@@ -103,6 +109,7 @@ public class ProveedorController {
         );
     }
     
+    @Operation(summary = "Obtener proveedores por ciudad")
     @GetMapping("/ciudad/{ciudad}")
     public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedoresPorCiudad(@PathVariable String ciudad) {
         List<Proveedor> proveedores = proveedorService.obtenerProveedoresPorCiudad(ciudad);
@@ -116,6 +123,7 @@ public class ProveedorController {
         );
     }
     
+    @Operation(summary = "Obtener proveedores por país")
     @GetMapping("/pais/{pais}")
     public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedoresPorPais(@PathVariable String pais) {
         List<Proveedor> proveedores = proveedorService.obtenerProveedoresPorPais(pais);
@@ -129,6 +137,7 @@ public class ProveedorController {
         );
     }
     
+    @Operation(summary = "Crear un nuevo proveedor")
     @PostMapping
     public ResponseEntity<ApiResponse<Proveedor>> crearProveedor(@RequestBody Proveedor proveedor) {
         Proveedor nuevoProveedor = proveedorService.guardarProveedor(proveedor);
@@ -142,6 +151,7 @@ public class ProveedorController {
         );
     }
     
+    @Operation(summary = "Actualizar un proveedor existente")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Proveedor>> actualizarProveedor(@PathVariable Long id, @RequestBody Proveedor proveedor) {
         return proveedorService.actualizarProveedor(id, proveedor)
@@ -160,6 +170,7 @@ public class ProveedorController {
                         HttpStatus.NOT_FOUND));
     }
     
+    @Operation(summary = "Cambiar el estado de un proveedor")
     @PatchMapping("/{id}/estado")
     public ResponseEntity<ApiResponse<Proveedor>> cambiarEstadoProveedor(@PathVariable Long id, @RequestParam("activo") Boolean activo) {
         return proveedorService.cambiarEstadoProveedor(id, activo)
@@ -178,6 +189,7 @@ public class ProveedorController {
                         HttpStatus.NOT_FOUND));
     }
     
+    @Operation(summary = "Eliminar un proveedor")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminarProveedor(@PathVariable Long id) {
         if (proveedorService.obtenerProveedorPorId(id).isPresent()) {
