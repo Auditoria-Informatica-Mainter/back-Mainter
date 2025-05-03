@@ -1,6 +1,7 @@
 package com.example.BackendProject.controller;
 
 import com.example.BackendProject.dto.SectorDTO;
+import com.example.BackendProject.dto.SectorConAlmacenDTO;
 import com.example.BackendProject.entity.Sector;
 import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.SectorService;
@@ -159,6 +160,43 @@ public class SectorController {
                 ApiResponse.<List<Sector>>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("Sectores de tipo: " + tipo)
+                        .data(sectores)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+    @Operation(summary = "Obtener un sector con su almacén")
+    @GetMapping("/{id}/con-almacen")
+    public ResponseEntity<ApiResponse<SectorConAlmacenDTO>> obtenerSectorConAlmacen(@PathVariable Long id) {
+        try {
+            SectorConAlmacenDTO dto = sectorService.obtenerSectorConAlmacen(id);
+            return new ResponseEntity<>(
+                    ApiResponse.<SectorConAlmacenDTO>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Sector con almacén encontrado")
+                            .data(dto)
+                            .build(),
+                    HttpStatus.OK
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<SectorConAlmacenDTO>builder()
+                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message(e.getReason())
+                            .build(),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+    }
+    
+    @Operation(summary = "Obtener todos los sectores con su almacén")
+    @GetMapping("/con-almacen")
+    public ResponseEntity<ApiResponse<List<SectorConAlmacenDTO>>> obtenerTodosLosSectoresConAlmacen() {
+        List<SectorConAlmacenDTO> sectores = sectorService.listarSectoresConAlmacen();
+        return new ResponseEntity<>(
+                ApiResponse.<List<SectorConAlmacenDTO>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lista de sectores con almacén")
                         .data(sectores)
                         .build(),
                 HttpStatus.OK

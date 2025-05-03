@@ -1,5 +1,6 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Sector {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     private String nombre;
@@ -36,6 +37,7 @@ public class Sector {
     
     @ManyToOne
     @JoinColumn(name = "almacen_id")
+    @JsonBackReference
     private Almacen almacen;
     
     @OneToMany(mappedBy = "sector")

@@ -1,6 +1,7 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.SectorDTO;
+import com.example.BackendProject.dto.SectorConAlmacenDTO;
 import com.example.BackendProject.entity.Almacen;
 import com.example.BackendProject.entity.Sector;
 import com.example.BackendProject.repository.AlmacenRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Servicio para la gestión de sectores
@@ -126,5 +128,57 @@ public class SectorService {
      */
     public List<Sector> buscarPorTipo(String tipo) {
         return sectorRepository.findByTipo(tipo);
+    }
+    
+    /**
+     * Obtiene un sector con su información de almacén
+     * @param sectorId ID del sector
+     * @return DTO con el sector y su almacén
+     */
+    public SectorConAlmacenDTO obtenerSectorConAlmacen(Long sectorId) {
+        Sector sector = obtenerSector(sectorId);
+        
+        SectorConAlmacenDTO dto = new SectorConAlmacenDTO();
+        dto.setId(sector.getId());
+        dto.setNombre(sector.getNombre());
+        dto.setStock(sector.getStock());
+        dto.setCapacidad_maxima(sector.getCapacidad_maxima());
+        dto.setTipo(sector.getTipo());
+        dto.setDescripcion(sector.getDescripcion());
+    
+        if (sector.getAlmacen() != null) {
+            dto.setAlmacenId(sector.getAlmacen().getId());
+            dto.setAlmacenNombre(sector.getAlmacen().getNombre());
+        }
+    
+        return dto;
+    }
+    
+    /**
+     * Obtiene todos los sectores con su información de almacén
+     * @return Lista de DTOs con sectores y sus almacenes
+     */
+    public List<SectorConAlmacenDTO> listarSectoresConAlmacen() {
+        List<Sector> sectores = listarSectores();
+        List<SectorConAlmacenDTO> listaDto = new ArrayList<>();
+        
+        for (Sector sector : sectores) {
+            SectorConAlmacenDTO dto = new SectorConAlmacenDTO();
+            dto.setId(sector.getId());
+            dto.setNombre(sector.getNombre());
+            dto.setStock(sector.getStock());
+            dto.setCapacidad_maxima(sector.getCapacidad_maxima());
+            dto.setTipo(sector.getTipo());
+            dto.setDescripcion(sector.getDescripcion());
+            
+            if (sector.getAlmacen() != null) {
+                dto.setAlmacenId(sector.getAlmacen().getId());
+                dto.setAlmacenNombre(sector.getAlmacen().getNombre());
+            }
+            
+            listaDto.add(dto);
+        }
+        
+        return listaDto;
     }
 } 

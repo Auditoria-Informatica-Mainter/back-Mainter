@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 public class Rol {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador único del rol")
     private Long id;
 
