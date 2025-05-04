@@ -24,8 +24,7 @@ public class Reporte {
     @ManyToOne
     private Usuario solictado_por;
 
-    @ManyToOne
-    private Pedido pedido;
+
 
     @ManyToOne
     private Compra compra;
