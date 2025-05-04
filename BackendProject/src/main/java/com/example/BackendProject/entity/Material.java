@@ -44,8 +44,8 @@ public class Material {
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;      // Relación con la entidad Categoria
     
-    @ManyToOne
-    @JoinColumn(name = "sector_id")
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "sector_id", nullable = true)
     private Sector sector;            // Relación con la entidad Sector
     
     @OneToMany(mappedBy = "material")
