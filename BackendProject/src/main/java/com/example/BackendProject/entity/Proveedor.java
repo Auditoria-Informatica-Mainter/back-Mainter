@@ -45,7 +45,7 @@ public class Proveedor {
     
     @OneToMany(mappedBy = "proveedor")
     @JsonManagedReference
-    private List<Pedido> pedidos = new ArrayList<>();
+    private List<Compra> compras = new ArrayList<>();
     
     /**
      * Constructor con parámetros principales para crear un proveedor

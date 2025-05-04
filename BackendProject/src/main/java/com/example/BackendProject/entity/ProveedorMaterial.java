@@ -1,6 +1,7 @@
 package com.example.BackendProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +28,7 @@ public class ProveedorMaterial {
     
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
-    @JsonBackReference
+    @JsonIgnore
     private Proveedor proveedor;
     
     @ManyToOne
@@ -49,4 +50,4 @@ public class ProveedorMaterial {
         this.cantidadMinima = cantidadMinima;
         this.descripcion = descripcion;
     }
-} 
+}
