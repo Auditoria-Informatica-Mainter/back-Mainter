@@ -1,12 +1,12 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * Entidad que representa un producto en el sistema.
- * Los productos son el resultado del proceso de fabricación utilizando materiales.
+ * Los productos son el resultado del proceso de fabricación utilizando materiales y preproductos.
  */
 @Entity
 @Table(name = "producto")
@@ -27,7 +27,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Producto {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     private String nombre;
@@ -35,35 +35,33 @@ public class Producto {
     private Integer stock;          // Cantidad actual disponible
     private Integer stock_minimo;   // Límite para generar alertas
     private String imagen;          // URL de imagen del producto (opcional)
+    private String tiempo;          // Tiempo estimado de producción
     
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "categoria_id")
-    private Categoria categoria;    // Categorización del producto
-    
-    @OneToMany(mappedBy = "producto")
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<ProductoMaterial> materiales = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Plano> planos = new ArrayList<>();
     
     /**
      * Constructor con parámetros principales para crear un producto
      */
-    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, Categoria categoria) {
+    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String tiempo) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.stock = stock;
         this.stock_minimo = stock_minimo;
-        this.categoria = categoria;
+        this.tiempo = tiempo;
         this.imagen = null; // La imagen es opcional, por defecto es null
     }
     
     /**
      * Constructor con parámetros principales incluyendo imagen
      */
-    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String imagen, Categoria categoria) {
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.stock = stock;
-        this.stock_minimo = stock_minimo;
+    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String tiempo, String imagen) {
+        this(nombre, descripcion, stock, stock_minimo, tiempo);
         this.imagen = imagen;
-        this.categoria = categoria;
     }
 }

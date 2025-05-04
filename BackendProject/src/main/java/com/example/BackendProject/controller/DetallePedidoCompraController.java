@@ -17,7 +17,7 @@ import java.util.List;
  * Controlador REST para la gestión de detalles de pedidos de compra
  */
 @RestController
-@RequestMapping("/api/pedidos-compra")
+@RequestMapping("/api/compras-detalle")
 @CrossOrigin(origins = "*")
 public class DetallePedidoCompraController {
     
@@ -66,14 +66,14 @@ public class DetallePedidoCompraController {
         }
     }
     
-    @Operation(summary = "Obtener detalles de pedido por pedido principal")
-    @GetMapping("/pedido/{pedidoId}")
-    public ResponseEntity<ApiResponse<List<DetallePedidoCompra>>> obtenerDetallesPorPedido(@PathVariable Long pedidoId) {
-        List<DetallePedidoCompra> detalles = detallePedidoCompraService.obtenerDetallesPorPedido(pedidoId);
+    @Operation(summary = "Obtener detalles de pedido por compra principal")
+    @GetMapping("/compra/{compraId}")
+    public ResponseEntity<ApiResponse<List<DetallePedidoCompra>>> obtenerDetallesPorCompra(@PathVariable Long compraId) {
+        List<DetallePedidoCompra> detalles = detallePedidoCompraService.obtenerDetallesPorCompra(compraId);
         return new ResponseEntity<>(
                 ApiResponse.<List<DetallePedidoCompra>>builder()
                         .statusCode(HttpStatus.OK.value())
-                        .message("Detalles del pedido ID: " + pedidoId)
+                        .message("Detalles de la compra ID: " + compraId)
                         .data(detalles)
                         .build(),
                 HttpStatus.OK

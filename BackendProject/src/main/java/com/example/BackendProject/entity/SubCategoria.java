@@ -1,5 +1,6 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +22,7 @@ import java.util.List;
 public class SubCategoria {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nombre;
@@ -29,6 +30,7 @@ public class SubCategoria {
     private String descripcion;
     
     @OneToMany(mappedBy = "subCategoria")
+    @JsonIgnore
     private List<Categoria> categorias = new ArrayList<>();
 
     public SubCategoria(String nombre, String descripcion) {

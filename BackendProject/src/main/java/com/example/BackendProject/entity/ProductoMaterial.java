@@ -1,5 +1,6 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,11 +22,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductoMaterial {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @ManyToOne
     @JoinColumn(name = "producto_id")
+    @JsonIgnore
     private Producto producto;
     
     @ManyToOne
@@ -42,4 +44,4 @@ public class ProductoMaterial {
         this.material = material;
         this.cantidad = cantidad;
     }
-} 
+}

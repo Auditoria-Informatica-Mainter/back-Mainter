@@ -1,5 +1,7 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,11 +23,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProveedorMaterial {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
+    @JsonIgnore
     private Proveedor proveedor;
     
     @ManyToOne
@@ -47,4 +50,4 @@ public class ProveedorMaterial {
         this.cantidadMinima = cantidadMinima;
         this.descripcion = descripcion;
     }
-} 
+}
