@@ -3,10 +3,10 @@ package com.example.BackendProject.service;
 import com.example.BackendProject.dto.DetallePedidoCompraDTO;
 import com.example.BackendProject.entity.DetallePedidoCompra;
 import com.example.BackendProject.entity.Material;
-import com.example.BackendProject.entity.Pedido;
+import com.example.BackendProject.entity.Compra;
 import com.example.BackendProject.repository.DetallePedidoCompraRepository;
 import com.example.BackendProject.repository.MaterialRepository;
-import com.example.BackendProject.repository.PedidoRepository;
+import com.example.BackendProject.repository.CompraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,16 +21,16 @@ import java.util.List;
 public class DetallePedidoCompraService {
     
     private final DetallePedidoCompraRepository detallePedidoCompraRepository;
-    private final PedidoRepository pedidoRepository;
+    private final CompraRepository compraRepository;
     private final MaterialRepository materialRepository;
     
     @Autowired
     public DetallePedidoCompraService(
             DetallePedidoCompraRepository detallePedidoCompraRepository,
-            PedidoRepository pedidoRepository,
+            CompraRepository compraRepository,
             MaterialRepository materialRepository) {
         this.detallePedidoCompraRepository = detallePedidoCompraRepository;
-        this.pedidoRepository = pedidoRepository;
+        this.compraRepository = compraRepository;
         this.materialRepository = materialRepository;
     }
     
@@ -58,12 +58,12 @@ public class DetallePedidoCompraService {
      * Crea un nuevo detalle de pedido
      * @param dto datos del nuevo detalle de pedido
      * @return el detalle de pedido creado
-     * @throws ResponseStatusException si no se encuentra el pedido o el material
+     * @throws ResponseStatusException si no se encuentra la compra o el material
      */
     public DetallePedidoCompra crearDetallePedido(DetallePedidoCompraDTO dto) {
-        Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
+        Compra compra = compraRepository.findById(dto.getCompraId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Pedido no encontrado con ID: " + dto.getPedidoId()));
+                        "Compra no encontrada con ID: " + dto.getCompraId()));
         
         Material material = materialRepository.findById(dto.getMaterialId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -75,7 +75,7 @@ public class DetallePedidoCompraService {
                 dto.getImporte(),
                 dto.getImporte_desc(),
                 dto.getEstado(),
-                pedido,
+                compra,
                 material
         );
         
@@ -87,16 +87,16 @@ public class DetallePedidoCompraService {
      * @param id el ID del detalle de pedido a actualizar
      * @param dto los nuevos datos del detalle de pedido
      * @return el detalle de pedido actualizado
-     * @throws ResponseStatusException si no se encuentra el detalle de pedido, el pedido o el material
+     * @throws ResponseStatusException si no se encuentra el detalle de pedido, la compra o el material
      */
     public DetallePedidoCompra actualizarDetallePedido(Long id, DetallePedidoCompraDTO dto) {
         DetallePedidoCompra detallePedido = obtenerDetallePedido(id);
         
-        if (dto.getPedidoId() != null) {
-            Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
+        if (dto.getCompraId() != null) {
+            Compra compra = compraRepository.findById(dto.getCompraId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                            "Pedido no encontrado con ID: " + dto.getPedidoId()));
-            detallePedido.setPedido(pedido);
+                            "Compra no encontrada con ID: " + dto.getCompraId()));
+            detallePedido.setCompra(compra);
         }
         
         if (dto.getMaterialId() != null) {
@@ -130,12 +130,12 @@ public class DetallePedidoCompraService {
     }
     
     /**
-     * Obtiene los detalles de pedido por pedido
-     * @param pedidoId el ID del pedido
-     * @return lista de detalles del pedido
+     * Obtiene los detalles de pedido por compra
+     * @param compraId el ID de la compra
+     * @return lista de detalles de la compra
      */
-    public List<DetallePedidoCompra> obtenerDetallesPorPedido(Long pedidoId) {
-        return detallePedidoCompraRepository.findByPedidoId(pedidoId);
+    public List<DetallePedidoCompra> obtenerDetallesPorCompra(Long compraId) {
+        return detallePedidoCompraRepository.findByCompraId(compraId);
     }
     
     /**

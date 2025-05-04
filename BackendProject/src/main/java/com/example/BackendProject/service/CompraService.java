@@ -1,10 +1,10 @@
 package com.example.BackendProject.service;
 
-import com.example.BackendProject.dto.PedidoDTO;
-import com.example.BackendProject.entity.Pedido;
+import com.example.BackendProject.dto.CompraDTO;
+import com.example.BackendProject.entity.Compra;
 import com.example.BackendProject.entity.Proveedor;
 import com.example.BackendProject.entity.Usuario;
-import com.example.BackendProject.repository.PedidoRepository;
+import com.example.BackendProject.repository.CompraRepository;
 import com.example.BackendProject.repository.ProveedorRepository;
 import com.example.BackendProject.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,52 +16,52 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Servicio para la gestión de pedidos (compras)
+ * Servicio para la gestión de compras
  */
 @Service
-public class PedidoService {
+public class CompraService {
     
-    private final PedidoRepository pedidoRepository;
+    private final CompraRepository compraRepository;
     private final ProveedorRepository proveedorRepository;
     private final UsuarioRepository usuarioRepository;
     
     @Autowired
-    public PedidoService(
-            PedidoRepository pedidoRepository,
+    public CompraService(
+            CompraRepository compraRepository,
             ProveedorRepository proveedorRepository,
             UsuarioRepository usuarioRepository) {
-        this.pedidoRepository = pedidoRepository;
+        this.compraRepository = compraRepository;
         this.proveedorRepository = proveedorRepository;
         this.usuarioRepository = usuarioRepository;
     }
     
     /**
-     * Obtiene todos los pedidos
-     * @return lista de pedidos
+     * Obtiene todas las compras
+     * @return lista de compras
      */
-    public List<Pedido> listarPedidos() {
-        return pedidoRepository.findAll();
+    public List<Compra> listarCompras() {
+        return compraRepository.findAll();
     }
     
     /**
-     * Obtiene un pedido por su ID
-     * @param id el ID del pedido
-     * @return el pedido encontrado
-     * @throws ResponseStatusException si no se encuentra el pedido
+     * Obtiene una compra por su ID
+     * @param id el ID de la compra
+     * @return la compra encontrada
+     * @throws ResponseStatusException si no se encuentra la compra
      */
-    public Pedido obtenerPedido(Long id) {
-        return pedidoRepository.findById(id)
+    public Compra obtenerCompra(Long id) {
+        return compraRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Pedido no encontrado con ID: " + id));
+                        "Compra no encontrada con ID: " + id));
     }
     
     /**
-     * Crea un nuevo pedido
-     * @param dto datos del nuevo pedido
-     * @return el pedido creado
+     * Crea una nueva compra
+     * @param dto datos de la nueva compra
+     * @return la compra creada
      * @throws ResponseStatusException si no se encuentra el proveedor o el usuario
      */
-    public Pedido crearPedido(PedidoDTO dto) {
+    public Compra crearCompra(CompraDTO dto) {
         Proveedor proveedor = null;
         Usuario usuario = null;
         
@@ -84,7 +84,7 @@ public class PedidoService {
         Double importeTotal = dto.getImporte_total() != null ? dto.getImporte_total() : 0.0;
         Double importeDescuento = dto.getImporte_descuento() != null ? dto.getImporte_descuento() : 0.0;
         
-        Pedido pedido = new Pedido(
+        Compra compra = new Compra(
                 dto.getEstado() != null ? dto.getEstado() : "PENDIENTE",
                 fecha,
                 importeTotal,
@@ -93,81 +93,81 @@ public class PedidoService {
                 usuario
         );
         
-        return pedidoRepository.save(pedido);
+        return compraRepository.save(compra);
     }
     
     /**
-     * Actualiza un pedido existente
-     * @param id el ID del pedido a actualizar
-     * @param dto los nuevos datos del pedido
-     * @return el pedido actualizado
-     * @throws ResponseStatusException si no se encuentra el pedido, el proveedor o el usuario
+     * Actualiza una compra existente
+     * @param id el ID de la compra a actualizar
+     * @param dto los nuevos datos de la compra
+     * @return la compra actualizada
+     * @throws ResponseStatusException si no se encuentra la compra, el proveedor o el usuario
      */
-    public Pedido actualizarPedido(Long id, PedidoDTO dto) {
-        Pedido pedido = obtenerPedido(id);
+    public Compra actualizarCompra(Long id, CompraDTO dto) {
+        Compra compra = obtenerCompra(id);
         
         if (dto.getEstado() != null) {
-            pedido.setEstado(dto.getEstado());
+            compra.setEstado(dto.getEstado());
         }
         
         if (dto.getFecha() != null) {
-            pedido.setFecha(dto.getFecha());
+            compra.setFecha(dto.getFecha());
         }
         
         if (dto.getImporte_total() != null) {
-            pedido.setImporte_total(dto.getImporte_total());
+            compra.setImporte_total(dto.getImporte_total());
         }
         
         if (dto.getImporte_descuento() != null) {
-            pedido.setImporte_descuento(dto.getImporte_descuento());
+            compra.setImporte_descuento(dto.getImporte_descuento());
         }
         
         if (dto.getProveedorId() != null) {
             Proveedor proveedor = proveedorRepository.findById(dto.getProveedorId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "Proveedor no encontrado con ID: " + dto.getProveedorId()));
-            pedido.setProveedor(proveedor);
+            compra.setProveedor(proveedor);
         }
         
         if (dto.getUsuarioId() != null) {
             Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "Usuario no encontrado con ID: " + dto.getUsuarioId()));
-            pedido.setUsuario(usuario);
+            compra.setUsuario(usuario);
         }
         
-        return pedidoRepository.save(pedido);
+        return compraRepository.save(compra);
     }
     
     /**
-     * Elimina un pedido
-     * @param id el ID del pedido a eliminar
-     * @throws ResponseStatusException si no se encuentra el pedido
+     * Elimina una compra
+     * @param id el ID de la compra a eliminar
+     * @throws ResponseStatusException si no se encuentra la compra
      */
-    public void eliminarPedido(Long id) {
-        if (!pedidoRepository.existsById(id)) {
+    public void eliminarCompra(Long id) {
+        if (!compraRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Pedido no encontrado con ID: " + id);
+                    "Compra no encontrada con ID: " + id);
         }
         
-        pedidoRepository.deleteById(id);
+        compraRepository.deleteById(id);
     }
     
     /**
-     * Busca pedidos por estado
+     * Busca compras por estado
      * @param estado el estado a buscar
-     * @return lista de pedidos con el estado especificado
+     * @return lista de compras con el estado especificado
      */
-    public List<Pedido> buscarPorEstado(String estado) {
-        return pedidoRepository.findByEstado(estado);
+    public List<Compra> buscarPorEstado(String estado) {
+        return compraRepository.findByEstado(estado);
     }
     
     /**
-     * Busca pedidos por proveedor
+     * Busca compras por proveedor
      * @param proveedorId el ID del proveedor
-     * @return lista de pedidos del proveedor
+     * @return lista de compras del proveedor
      */
-    public List<Pedido> buscarPorProveedor(Long proveedorId) {
-        return pedidoRepository.findByProveedorId(proveedorId);
+    public List<Compra> buscarPorProveedor(Long proveedorId) {
+        return compraRepository.findByProveedorId(proveedorId);
     }
 } 

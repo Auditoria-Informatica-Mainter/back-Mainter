@@ -1,9 +1,9 @@
 package com.example.BackendProject.controller;
 
-import com.example.BackendProject.dto.PedidoDTO;
-import com.example.BackendProject.entity.Pedido;
+import com.example.BackendProject.dto.CompraDTO;
+import com.example.BackendProject.entity.Compra;
 import com.example.BackendProject.response.ApiResponse;
-import com.example.BackendProject.service.PedidoService;
+import com.example.BackendProject.service.CompraService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,50 +14,50 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 /**
- * Controlador REST para la gestión de pedidos (compras)
+ * Controlador REST para la gestión de compras
  */
 @RestController
-@RequestMapping("/api/pedidos")
+@RequestMapping("/api/compras")
 @CrossOrigin(origins = "*")
-public class PedidoController {
+public class CompraController {
     
-    private final PedidoService pedidoService;
+    private final CompraService compraService;
     
     @Autowired
-    public PedidoController(PedidoService pedidoService) {
-        this.pedidoService = pedidoService;
+    public CompraController(CompraService compraService) {
+        this.compraService = compraService;
     }
     
-    @Operation(summary = "Obtener todos los pedidos")
+    @Operation(summary = "Obtener todas las compras")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Pedido>>> obtenerTodosLosPedidos() {
-        List<Pedido> pedidos = pedidoService.listarPedidos();
+    public ResponseEntity<ApiResponse<List<Compra>>> obtenerTodasLasCompras() {
+        List<Compra> compras = compraService.listarCompras();
         return new ResponseEntity<>(
-                ApiResponse.<List<Pedido>>builder()
+                ApiResponse.<List<Compra>>builder()
                         .statusCode(HttpStatus.OK.value())
-                        .message("Lista de pedidos")
-                        .data(pedidos)
+                        .message("Lista de compras")
+                        .data(compras)
                         .build(),
                 HttpStatus.OK
         );
     }
     
-    @Operation(summary = "Obtener un pedido por ID")
+    @Operation(summary = "Obtener una compra por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Pedido>> obtenerPedidoPorId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Compra>> obtenerCompraPorId(@PathVariable Long id) {
         try {
-            Pedido pedido = pedidoService.obtenerPedido(id);
+            Compra compra = compraService.obtenerCompra(id);
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<Compra>builder()
                             .statusCode(HttpStatus.OK.value())
-                            .message("Pedido encontrado")
-                            .data(pedido)
+                            .message("Compra encontrada")
+                            .data(compra)
                             .build(),
                     HttpStatus.OK
             );
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<Compra>builder()
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .message(e.getReason())
                             .build(),
@@ -66,22 +66,22 @@ public class PedidoController {
         }
     }
     
-    @Operation(summary = "Crear un nuevo pedido")
+    @Operation(summary = "Crear una nueva compra")
     @PostMapping
-    public ResponseEntity<ApiResponse<Pedido>> crearPedido(@RequestBody PedidoDTO pedidoDTO) {
+    public ResponseEntity<ApiResponse<Compra>> crearCompra(@RequestBody CompraDTO compraDTO) {
         try {
-            Pedido nuevoPedido = pedidoService.crearPedido(pedidoDTO);
+            Compra nuevaCompra = compraService.crearCompra(compraDTO);
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<Compra>builder()
                             .statusCode(HttpStatus.CREATED.value())
-                            .message("Pedido creado exitosamente")
-                            .data(nuevoPedido)
+                            .message("Compra creada exitosamente")
+                            .data(nuevaCompra)
                             .build(),
                     HttpStatus.CREATED
             );
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<Compra>builder()
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .message(e.getReason())
                             .build(),
@@ -90,22 +90,22 @@ public class PedidoController {
         }
     }
     
-    @Operation(summary = "Actualizar un pedido existente")
+    @Operation(summary = "Actualizar una compra existente")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Pedido>> actualizarPedido(@PathVariable Long id, @RequestBody PedidoDTO pedidoDTO) {
+    public ResponseEntity<ApiResponse<Compra>> actualizarCompra(@PathVariable Long id, @RequestBody CompraDTO compraDTO) {
         try {
-            Pedido pedidoActualizado = pedidoService.actualizarPedido(id, pedidoDTO);
+            Compra compraActualizada = compraService.actualizarCompra(id, compraDTO);
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<Compra>builder()
                             .statusCode(HttpStatus.OK.value())
-                            .message("Pedido actualizado exitosamente")
-                            .data(pedidoActualizado)
+                            .message("Compra actualizada exitosamente")
+                            .data(compraActualizada)
                             .build(),
                     HttpStatus.OK
             );
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<Compra>builder()
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .message(e.getReason())
                             .build(),
@@ -114,15 +114,15 @@ public class PedidoController {
         }
     }
     
-    @Operation(summary = "Eliminar un pedido")
+    @Operation(summary = "Eliminar una compra")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> eliminarPedido(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> eliminarCompra(@PathVariable Long id) {
         try {
-            pedidoService.eliminarPedido(id);
+            compraService.eliminarCompra(id);
             return new ResponseEntity<>(
                     ApiResponse.<Void>builder()
                             .statusCode(HttpStatus.NO_CONTENT.value())
-                            .message("Pedido eliminado exitosamente")
+                            .message("Compra eliminada exitosamente")
                             .build(),
                     HttpStatus.NO_CONTENT
             );
@@ -137,29 +137,29 @@ public class PedidoController {
         }
     }
     
-    @Operation(summary = "Buscar pedidos por estado")
+    @Operation(summary = "Buscar compras por estado")
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<ApiResponse<List<Pedido>>> obtenerPedidosPorEstado(@PathVariable String estado) {
-        List<Pedido> pedidos = pedidoService.buscarPorEstado(estado);
+    public ResponseEntity<ApiResponse<List<Compra>>> obtenerComprasPorEstado(@PathVariable String estado) {
+        List<Compra> compras = compraService.buscarPorEstado(estado);
         return new ResponseEntity<>(
-                ApiResponse.<List<Pedido>>builder()
+                ApiResponse.<List<Compra>>builder()
                         .statusCode(HttpStatus.OK.value())
-                        .message("Pedidos con estado: " + estado)
-                        .data(pedidos)
+                        .message("Compras con estado: " + estado)
+                        .data(compras)
                         .build(),
                 HttpStatus.OK
         );
     }
     
-    @Operation(summary = "Buscar pedidos por proveedor")
+    @Operation(summary = "Buscar compras por proveedor")
     @GetMapping("/proveedor/{proveedorId}")
-    public ResponseEntity<ApiResponse<List<Pedido>>> obtenerPedidosPorProveedor(@PathVariable Long proveedorId) {
-        List<Pedido> pedidos = pedidoService.buscarPorProveedor(proveedorId);
+    public ResponseEntity<ApiResponse<List<Compra>>> obtenerComprasPorProveedor(@PathVariable Long proveedorId) {
+        List<Compra> compras = compraService.buscarPorProveedor(proveedorId);
         return new ResponseEntity<>(
-                ApiResponse.<List<Pedido>>builder()
+                ApiResponse.<List<Compra>>builder()
                         .statusCode(HttpStatus.OK.value())
-                        .message("Pedidos del proveedor ID: " + proveedorId)
-                        .data(pedidos)
+                        .message("Compras del proveedor ID: " + proveedorId)
+                        .data(compras)
                         .build(),
                 HttpStatus.OK
         );

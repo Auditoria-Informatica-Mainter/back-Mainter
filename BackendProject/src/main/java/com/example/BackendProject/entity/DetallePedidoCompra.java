@@ -32,9 +32,9 @@ public class DetallePedidoCompra {
     private Double precio;
     
     @ManyToOne
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "compra_id")
     @JsonBackReference
-    private Pedido pedido;
+    private Compra compra;
     
     @ManyToOne
     @JoinColumn(name = "material_id")
@@ -45,13 +45,13 @@ public class DetallePedidoCompra {
      * Constructor con parámetros principales
      */
     public DetallePedidoCompra(Integer cantidad, Double precio, Double importe, 
-                        Double importe_desc, String estado, Pedido pedido, Material material) {
+                        Double importe_desc, String estado, Compra compra, Material material) {
         this.cantidad = cantidad;
         this.precio = precio;
         this.importe = importe;
         this.importe_desc = importe_desc;
         this.estado = estado;
-        this.pedido = pedido;
+        this.compra = compra;
         this.material = material;
     }
 } 
