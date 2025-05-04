@@ -91,6 +91,7 @@ public class CategoriaService {
      * @return la categoría actualizada
      * @throws ResponseStatusException si no se encuentra la categoría
      */
+    @LoggableAction
     public Categoria modificarCategoria(Long id, CategoriaDTO categoriaDTO) {
         Categoria categoria = obtenerCategoria(id);
         

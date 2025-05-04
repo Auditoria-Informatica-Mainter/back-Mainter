@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.PedidoDTO;
 import com.example.BackendProject.entity.Pedido;
 import com.example.BackendProject.entity.Proveedor;
@@ -61,6 +62,7 @@ public class PedidoService {
      * @return el pedido creado
      * @throws ResponseStatusException si no se encuentra el proveedor o el usuario
      */
+    @LoggableAction
     public Pedido crearPedido(PedidoDTO dto) {
         Proveedor proveedor = null;
         Usuario usuario = null;
@@ -103,6 +105,7 @@ public class PedidoService {
      * @return el pedido actualizado
      * @throws ResponseStatusException si no se encuentra el pedido, el proveedor o el usuario
      */
+    @LoggableAction
     public Pedido actualizarPedido(Long id, PedidoDTO dto) {
         Pedido pedido = obtenerPedido(id);
         
@@ -144,6 +147,7 @@ public class PedidoService {
      * @param id el ID del pedido a eliminar
      * @throws ResponseStatusException si no se encuentra el pedido
      */
+    @LoggableAction
     public void eliminarPedido(Long id) {
         if (!pedidoRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

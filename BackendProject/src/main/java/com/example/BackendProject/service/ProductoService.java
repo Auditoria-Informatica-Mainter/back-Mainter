@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.ProductoDTO;
 import com.example.BackendProject.dto.ProductoMaterialDTO;
 import com.example.BackendProject.entity.Categoria;
@@ -44,6 +45,7 @@ public class ProductoService {
      * @return Producto creado
      * @throws EntityNotFoundException si la categoría o algún material no existe
      */
+    @LoggableAction
     @Transactional
     public Producto crearProducto(ProductoDTO productoDTO) {
         // Buscar la categoría
@@ -135,6 +137,7 @@ public class ProductoService {
      * @return Producto actualizado
      * @throws EntityNotFoundException si el producto o la categoría no existen
      */
+    @LoggableAction
     @Transactional
     public Producto actualizarProducto(Long id, ProductoDTO productoDTO) {
         // Buscar el producto
@@ -197,6 +200,7 @@ public class ProductoService {
      * @return Producto actualizado
      * @throws EntityNotFoundException si el producto no existe
      */
+    @LoggableAction
     @Transactional
     public Producto actualizarImagen(Long id, String imagenUrl) {
         Producto producto = productoRepository.findById(id)
@@ -215,6 +219,7 @@ public class ProductoService {
      * @throws EntityNotFoundException si el producto no existe
      * @throws IllegalArgumentException si la operación resulta en stock negativo
      */
+    @LoggableAction
     @Transactional
     public Producto actualizarStock(Long id, Integer cantidad) {
         Producto producto = productoRepository.findById(id)
@@ -235,6 +240,7 @@ public class ProductoService {
      * @param id ID del producto a eliminar
      * @throws EntityNotFoundException si el producto no existe
      */
+    @LoggableAction
     @Transactional
     public void eliminarProducto(Long id) {
         if (!productoRepository.existsById(id)) {
@@ -357,4 +363,4 @@ public class ProductoService {
         // Actualizar stock del producto
         actualizarStock(productoId, cantidad);
     }
-} 
+}

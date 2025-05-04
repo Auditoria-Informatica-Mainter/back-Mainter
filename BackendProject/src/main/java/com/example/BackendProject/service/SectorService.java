@@ -1,6 +1,7 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.SectorDTO;
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.SectorConAlmacenDTO;
 import com.example.BackendProject.entity.Almacen;
 import com.example.BackendProject.entity.Sector;
@@ -55,6 +56,7 @@ public class SectorService {
      * @return el sector creado
      * @throws ResponseStatusException si no se encuentra el almacén
      */
+    @LoggableAction
     public Sector crearSector(SectorDTO sectorDTO) {
         Almacen almacen = almacenRepository.findById(sectorDTO.getAlmacenId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -79,6 +81,7 @@ public class SectorService {
      * @return el sector actualizado
      * @throws ResponseStatusException si no se encuentra el sector o el almacén
      */
+    @LoggableAction
     public Sector actualizarSector(Long id, SectorDTO sectorDTO) {
         Sector sector = obtenerSector(id);
         
@@ -103,6 +106,7 @@ public class SectorService {
      * @param id el ID del sector a eliminar
      * @throws ResponseStatusException si no se encuentra el sector
      */
+    @LoggableAction
     public void eliminarSector(Long id) {
         if (!sectorRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

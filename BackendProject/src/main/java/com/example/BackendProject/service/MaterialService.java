@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.MaterialDTO;
 import com.example.BackendProject.entity.Categoria;
 import com.example.BackendProject.entity.Material;
@@ -42,6 +43,7 @@ public class MaterialService {
      * @return Material creado
      * @throws EntityNotFoundException si la categoría no existe
      */
+    @LoggableAction
     @Transactional
     public Material crearMaterial(MaterialDTO materialDTO) {
         // Buscar la categoría
@@ -131,6 +133,7 @@ public class MaterialService {
      * @return Material actualizado
      * @throws EntityNotFoundException si el material o la categoría no existen
      */
+    @LoggableAction
     @Transactional
     public Material actualizarMaterial(Long id, MaterialDTO materialDTO) {
         // Buscar el material
@@ -181,6 +184,7 @@ public class MaterialService {
      * @return Material actualizado
      * @throws EntityNotFoundException si el material no existe
      */
+    @LoggableAction
     @Transactional
     public Material actualizarImagen(Long id, String imagenUrl) {
         Material material = materialRepository.findById(id)
@@ -200,6 +204,7 @@ public class MaterialService {
      * @throws EntityNotFoundException si el material no existe
      * @throws IllegalArgumentException si la operación resulta en stock negativo
      */
+    @LoggableAction
     @Transactional
     public Material actualizarStock(Long id, Integer cantidad) {
         Material material = materialRepository.findById(id)
@@ -220,6 +225,7 @@ public class MaterialService {
      * @param id ID del material a eliminar
      * @throws EntityNotFoundException si el material no existe
      */
+    @LoggableAction
     @Transactional
     public void eliminarMaterial(Long id) {
         if (!materialRepository.existsById(id)) {
@@ -260,4 +266,4 @@ public class MaterialService {
     public List<Material> obtenerMaterialesNecesitanReabastecimiento() {
         return materialRepository.findMaterialesNecesitanReabastecimiento();
     }
-} 
+}

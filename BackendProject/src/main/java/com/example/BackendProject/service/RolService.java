@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.entity.Rol;
 import com.example.BackendProject.repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +22,14 @@ public class RolService {
 		return roles;
 	}
 	
+	@LoggableAction
 	public Rol guardarRol(String nombre, List<String> nombresPermisos) {
 		Rol rol = new Rol();
 		rol.setNombre(nombre);
 		return rolRepository.save(rol);
 	}
 	
+	@LoggableAction
 	public Rol modificarRol(Long id, String nombre, List<String> nombresPermisos) {
 		Rol rol = obtenerRol(id);
 	    if (nombre != null && !nombre.isEmpty()) {
@@ -51,6 +54,8 @@ public class RolService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe el rol con el id" + nombre);
 		}
 	}
+	
+	@LoggableAction
 	public Rol actualizarRol(Long id, Rol rolDto) {
 		Rol rol = obtenerRol(id);
 		rol.setNombre(rolDto.getNombre());

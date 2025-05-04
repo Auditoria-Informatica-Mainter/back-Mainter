@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.DetallePedidoCompraDTO;
 import com.example.BackendProject.entity.DetallePedidoCompra;
 import com.example.BackendProject.entity.Material;
@@ -60,6 +61,7 @@ public class DetallePedidoCompraService {
      * @return el detalle de pedido creado
      * @throws ResponseStatusException si no se encuentra el pedido o el material
      */
+    @LoggableAction
     public DetallePedidoCompra crearDetallePedido(DetallePedidoCompraDTO dto) {
         Pedido pedido = pedidoRepository.findById(dto.getPedidoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -89,6 +91,7 @@ public class DetallePedidoCompraService {
      * @return el detalle de pedido actualizado
      * @throws ResponseStatusException si no se encuentra el detalle de pedido, el pedido o el material
      */
+    @LoggableAction
     public DetallePedidoCompra actualizarDetallePedido(Long id, DetallePedidoCompraDTO dto) {
         DetallePedidoCompra detallePedido = obtenerDetallePedido(id);
         
@@ -120,6 +123,7 @@ public class DetallePedidoCompraService {
      * @param id el ID del detalle de pedido a eliminar
      * @throws ResponseStatusException si no se encuentra el detalle de pedido
      */
+    @LoggableAction
     public void eliminarDetallePedido(Long id) {
         if (!detallePedidoCompraRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
