@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.CategoriaDTO;
 import com.example.BackendProject.entity.Categoria;
 import com.example.BackendProject.entity.SubCategoria;
@@ -65,6 +66,7 @@ public class CategoriaService {
      * @param categoriaDTO datos de la nueva categoría
      * @return la categoría creada
      */
+    @LoggableAction
     public Categoria guardarCategoria(CategoriaDTO categoriaDTO) {
         Categoria categoria;
         

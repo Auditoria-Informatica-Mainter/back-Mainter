@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,6 +30,7 @@ public class SubCategoria {
 
     private String descripcion;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "subCategoria")
     private List<Categoria> categorias = new ArrayList<>();
 

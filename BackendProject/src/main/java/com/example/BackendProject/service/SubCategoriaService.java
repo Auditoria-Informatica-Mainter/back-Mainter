@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.SubCategoriaDTO;
 import com.example.BackendProject.entity.SubCategoria;
 import com.example.BackendProject.repository.CategoriaRepository;
@@ -17,17 +18,17 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SubCategoriaService {
-    
+
     private final SubCategoriaRepository subCategoriaRepository;
     private final CategoriaRepository categoriaRepository;
-    
+
     @Autowired
-    public SubCategoriaService(SubCategoriaRepository subCategoriaRepository, 
-                             CategoriaRepository categoriaRepository) {
+    public SubCategoriaService(SubCategoriaRepository subCategoriaRepository,
+                                CategoriaRepository categoriaRepository) {
         this.subCategoriaRepository = subCategoriaRepository;
         this.categoriaRepository = categoriaRepository;
     }
-    
+
     /**
      * Obtener todas las subcategorías
      * @return lista de subcategorías
@@ -35,7 +36,7 @@ public class SubCategoriaService {
     public List<SubCategoria> listarSubCategorias() {
         return subCategoriaRepository.findAll();
     }
-    
+
     /**
      * Obtener una subcategoría por su ID
      * @param id el ID de la subcategoría
@@ -44,15 +45,16 @@ public class SubCategoriaService {
      */
     public SubCategoria obtenerSubCategoria(Long id) {
         return subCategoriaRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Subcategoría no encontrada con ID: " + id));
     }
-    
+
     /**
      * Crear una nueva subcategoría
      * @param subCategoriaDTO datos de la nueva subcategoría
      * @return la subcategoría creada
      */
+    @LoggableAction
     public SubCategoria crearSubCategoria(SubCategoriaDTO subCategoriaDTO) {
         SubCategoria subCategoria = new SubCategoria(
                 subCategoriaDTO.getNombre(),
@@ -60,7 +62,7 @@ public class SubCategoriaService {
         );
         return subCategoriaRepository.save(subCategoria);
     }
-    
+
     /**
      * Actualizar una subcategoría existente
      * @param id el ID de la subcategoría a actualizar
@@ -68,36 +70,38 @@ public class SubCategoriaService {
      * @return la subcategoría actualizada
      * @throws ResponseStatusException si no se encuentra la subcategoría
      */
+    @LoggableAction
     public SubCategoria actualizarSubCategoria(Long id, SubCategoriaDTO subCategoriaDTO) {
         SubCategoria subCategoria = obtenerSubCategoria(id);
-        
+
         subCategoria.setNombre(subCategoriaDTO.getNombre());
         subCategoria.setDescripcion(subCategoriaDTO.getDescripcion());
-        
+
         return subCategoriaRepository.save(subCategoria);
     }
-    
+
     /**
      * Eliminar una subcategoría
      * @param id el ID de la subcategoría a eliminar
      * @throws ResponseStatusException si no se encuentra la subcategoría
      */
+    @LoggableAction
     public void eliminarSubCategoria(Long id) {
         if (!subCategoriaRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Subcategoría no encontrada con ID: " + id);
         }
-        
+
         // Verificar si hay categorías asociadas
         SubCategoria subCategoria = obtenerSubCategoria(id);
         if (subCategoria.getCategorias() != null && !subCategoria.getCategorias().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "No se puede eliminar la subcategoría porque tiene categorías asociadas");
         }
-        
+
         subCategoriaRepository.deleteById(id);
     }
-    
+
     /**
      * Obtener las categorías asociadas a una subcategoría
      * @param id el ID de la subcategoría
@@ -106,7 +110,7 @@ public class SubCategoriaService {
      */
     public List<Object> obtenerCategoriasPorSubCategoria(Long id) {
         SubCategoria subCategoria = obtenerSubCategoria(id);
-        
+
         return subCategoria.getCategorias().stream()
                 .map(categoria -> {
                     return categoria;
