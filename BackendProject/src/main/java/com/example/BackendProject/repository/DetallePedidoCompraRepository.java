@@ -2,7 +2,7 @@ package com.example.BackendProject.repository;
 
 import com.example.BackendProject.entity.DetallePedidoCompra;
 import com.example.BackendProject.entity.Material;
-import com.example.BackendProject.entity.Pedido;
+import com.example.BackendProject.entity.Compra;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,18 +14,18 @@ import java.util.List;
 @Repository
 public interface DetallePedidoCompraRepository extends JpaRepository<DetallePedidoCompra, Long> {
     /**
-     * Busca detalles de pedido por pedido
-     * @param pedido el pedido al que pertenecen los detalles
-     * @return lista de detalles del pedido especificado
+     * Busca detalles de pedido por compra
+     * @param compra la compra a la que pertenecen los detalles
+     * @return lista de detalles de la compra especificada
      */
-    List<DetallePedidoCompra> findByPedido(Pedido pedido);
+    List<DetallePedidoCompra> findByCompra(Compra compra);
     
     /**
-     * Busca detalles de pedido por ID de pedido
-     * @param pedidoId el ID del pedido
-     * @return lista de detalles del pedido especificado
+     * Busca detalles de pedido por ID de compra
+     * @param compraId el ID de la compra
+     * @return lista de detalles de la compra especificada
      */
-    List<DetallePedidoCompra> findByPedidoId(Long pedidoId);
+    List<DetallePedidoCompra> findByCompraId(Long compraId);
     
     /**
      * Busca detalles de pedido por material

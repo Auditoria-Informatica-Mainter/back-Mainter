@@ -24,14 +24,4 @@ public interface ProveedorRepository extends JpaRepository<Proveedor, Long> {
      * Busca proveedores por estado activo
      */
     List<Proveedor> findByActivo(Boolean activo);
-    
-    /**
-     * Busca proveedores por ciudad
-     */
-    List<Proveedor> findByCiudad(String ciudad);
-    
-    /**
-     * Busca proveedores por país
-     */
-    List<Proveedor> findByPais(String pais);
 } 

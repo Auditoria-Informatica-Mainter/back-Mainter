@@ -6,12 +6,12 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * DTO para la entidad Pedido (compra)
+ * DTO para la entidad Compra
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PedidoDTO {
+public class CompraDTO {
     private Long id;
     private String estado;
     private Date fecha;

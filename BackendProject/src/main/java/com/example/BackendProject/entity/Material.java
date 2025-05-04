@@ -1,5 +1,6 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,7 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Material {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     private String nombre;
@@ -43,14 +44,16 @@ public class Material {
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;      // Relación con la entidad Categoria
     
-    @ManyToOne
-    @JoinColumn(name = "sector_id")
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "sector_id", nullable = true)
     private Sector sector;            // Relación con la entidad Sector
     
     @OneToMany(mappedBy = "material")
+    @JsonManagedReference
     private List<ProveedorMaterial> proveedores = new ArrayList<>();
     
     @OneToMany(mappedBy = "material")
+    @JsonManagedReference
     private List<DetallePedidoCompra> detallesPedidos = new ArrayList<>();
     
     /**

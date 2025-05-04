@@ -17,6 +17,6 @@ public class DetallePedidoCompraDTO {
     private Double importe;
     private Double importe_desc;
     private Double precio;
-    private Long pedidoId;
+    private Long compraId;
     private Long materialId;
 } 

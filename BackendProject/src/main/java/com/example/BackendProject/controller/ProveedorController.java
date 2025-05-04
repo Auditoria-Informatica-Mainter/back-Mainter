@@ -1,6 +1,7 @@
 package com.example.BackendProject.controller;
 
-import com.example.BackendProject.entity.Proveedor;
+import com.example.BackendProject.dto.ProveedorDTO;
+import com.example.BackendProject.dto.ProveedorConMaterialesDTO;
 import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.ProveedorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,13 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 /**
  * Controlador REST para la gestión de proveedores.
  * Proporciona endpoints para administrar proveedores y sus relaciones con materiales.
- * Incluye funcionalidades para búsqueda por diferentes criterios como nombre, ciudad y país,
+ * Incluye funcionalidades para búsqueda por diferentes criterios como nombre,
  * así como la gestión del estado activo/inactivo de los proveedores.
  */
 @RestController
@@ -31,10 +33,10 @@ public class ProveedorController {
     
     @Operation(summary = "Obtener todos los proveedores")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerTodosLosProveedores() {
-        List<Proveedor> proveedores = proveedorService.obtenerTodosLosProveedores();
+    public ResponseEntity<ApiResponse<List<ProveedorDTO>>> obtenerTodosLosProveedores() {
+        List<ProveedorDTO> proveedores = proveedorService.obtenerTodosLosProveedores();
         return new ResponseEntity<>(
-                ApiResponse.<List<Proveedor>>builder()
+                ApiResponse.<List<ProveedorDTO>>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("Lista de proveedores")
                         .data(proveedores)
@@ -45,36 +47,60 @@ public class ProveedorController {
     
     @Operation(summary = "Obtener un proveedor por ID")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Proveedor>> obtenerProveedorPorId(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ProveedorDTO>> obtenerProveedorPorId(@PathVariable Long id) {
         return proveedorService.obtenerProveedorPorId(id)
                 .map(proveedor -> new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.OK.value())
                                 .message("Proveedor encontrado")
                                 .data(proveedor)
                                 .build(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.NOT_FOUND.value())
                                 .message("Proveedor no encontrado con ID: " + id)
                                 .build(),
                         HttpStatus.NOT_FOUND));
     }
     
+    @Operation(summary = "Obtener un proveedor con sus materiales por ID")
+    @GetMapping("/{id}/con-materiales")
+    public ResponseEntity<ApiResponse<ProveedorConMaterialesDTO>> obtenerProveedorConMateriales(@PathVariable Long id) {
+        try {
+            ProveedorConMaterialesDTO proveedor = proveedorService.obtenerProveedorConMateriales(id);
+            return new ResponseEntity<>(
+                    ApiResponse.<ProveedorConMaterialesDTO>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Proveedor con materiales encontrado")
+                            .data(proveedor)
+                            .build(),
+                    HttpStatus.OK
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<ProveedorConMaterialesDTO>builder()
+                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message(e.getReason())
+                            .build(),
+                    HttpStatus.NOT_FOUND
+            );
+        }
+    }
+    
     @Operation(summary = "Obtener un proveedor por nombre")
     @GetMapping("/nombre/{nombre}")
-    public ResponseEntity<ApiResponse<Proveedor>> obtenerProveedorPorNombre(@PathVariable String nombre) {
+    public ResponseEntity<ApiResponse<ProveedorDTO>> obtenerProveedorPorNombre(@PathVariable String nombre) {
         return proveedorService.obtenerProveedorPorNombre(nombre)
                 .map(proveedor -> new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.OK.value())
                                 .message("Proveedor encontrado")
                                 .data(proveedor)
                                 .build(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.NOT_FOUND.value())
                                 .message("Proveedor no encontrado con nombre: " + nombre)
                                 .build(),
@@ -83,10 +109,10 @@ public class ProveedorController {
     
     @Operation(summary = "Buscar proveedores por término")
     @GetMapping("/buscar")
-    public ResponseEntity<ApiResponse<List<Proveedor>>> buscarProveedoresPorNombre(@RequestParam("texto") String texto) {
-        List<Proveedor> proveedores = proveedorService.buscarProveedoresPorNombre(texto);
+    public ResponseEntity<ApiResponse<List<ProveedorDTO>>> buscarProveedoresPorNombre(@RequestParam("texto") String texto) {
+        List<ProveedorDTO> proveedores = proveedorService.buscarProveedoresPorNombre(texto);
         return new ResponseEntity<>(
-                ApiResponse.<List<Proveedor>>builder()
+                ApiResponse.<List<ProveedorDTO>>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("Resultados de búsqueda para: '" + texto + "'")
                         .data(proveedores)
@@ -97,10 +123,10 @@ public class ProveedorController {
     
     @Operation(summary = "Obtener proveedores por estado activo/inactivo")
     @GetMapping("/estado")
-    public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedoresPorEstado(@RequestParam("activo") Boolean activo) {
-        List<Proveedor> proveedores = proveedorService.obtenerProveedoresPorEstado(activo);
+    public ResponseEntity<ApiResponse<List<ProveedorDTO>>> obtenerProveedoresPorEstado(@RequestParam("activo") Boolean activo) {
+        List<ProveedorDTO> proveedores = proveedorService.obtenerProveedoresPorEstado(activo);
         return new ResponseEntity<>(
-                ApiResponse.<List<Proveedor>>builder()
+                ApiResponse.<List<ProveedorDTO>>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("Proveedores con estado activo: " + activo)
                         .data(proveedores)
@@ -109,40 +135,12 @@ public class ProveedorController {
         );
     }
     
-    @Operation(summary = "Obtener proveedores por ciudad")
-    @GetMapping("/ciudad/{ciudad}")
-    public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedoresPorCiudad(@PathVariable String ciudad) {
-        List<Proveedor> proveedores = proveedorService.obtenerProveedoresPorCiudad(ciudad);
-        return new ResponseEntity<>(
-                ApiResponse.<List<Proveedor>>builder()
-                        .statusCode(HttpStatus.OK.value())
-                        .message("Proveedores en: " + ciudad)
-                        .data(proveedores)
-                        .build(),
-                HttpStatus.OK
-        );
-    }
-    
-    @Operation(summary = "Obtener proveedores por país")
-    @GetMapping("/pais/{pais}")
-    public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedoresPorPais(@PathVariable String pais) {
-        List<Proveedor> proveedores = proveedorService.obtenerProveedoresPorPais(pais);
-        return new ResponseEntity<>(
-                ApiResponse.<List<Proveedor>>builder()
-                        .statusCode(HttpStatus.OK.value())
-                        .message("Proveedores en: " + pais)
-                        .data(proveedores)
-                        .build(),
-                HttpStatus.OK
-        );
-    }
-    
     @Operation(summary = "Crear un nuevo proveedor")
     @PostMapping
-    public ResponseEntity<ApiResponse<Proveedor>> crearProveedor(@RequestBody Proveedor proveedor) {
-        Proveedor nuevoProveedor = proveedorService.guardarProveedor(proveedor);
+    public ResponseEntity<ApiResponse<ProveedorDTO>> crearProveedor(@RequestBody ProveedorDTO proveedorDTO) {
+        ProveedorDTO nuevoProveedor = proveedorService.guardarProveedor(proveedorDTO);
         return new ResponseEntity<>(
-                ApiResponse.<Proveedor>builder()
+                ApiResponse.<ProveedorDTO>builder()
                         .statusCode(HttpStatus.CREATED.value())
                         .message("Proveedor creado exitosamente")
                         .data(nuevoProveedor)
@@ -153,17 +151,17 @@ public class ProveedorController {
     
     @Operation(summary = "Actualizar un proveedor existente")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Proveedor>> actualizarProveedor(@PathVariable Long id, @RequestBody Proveedor proveedor) {
-        return proveedorService.actualizarProveedor(id, proveedor)
+    public ResponseEntity<ApiResponse<ProveedorDTO>> actualizarProveedor(@PathVariable Long id, @RequestBody ProveedorDTO proveedorDTO) {
+        return proveedorService.actualizarProveedor(id, proveedorDTO)
                 .map(proveedorActualizado -> new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.OK.value())
                                 .message("Proveedor actualizado exitosamente")
                                 .data(proveedorActualizado)
                                 .build(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.NOT_FOUND.value())
                                 .message("Proveedor no encontrado con ID: " + id)
                                 .build(),
@@ -172,17 +170,17 @@ public class ProveedorController {
     
     @Operation(summary = "Cambiar el estado de un proveedor")
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<ApiResponse<Proveedor>> cambiarEstadoProveedor(@PathVariable Long id, @RequestParam("activo") Boolean activo) {
+    public ResponseEntity<ApiResponse<ProveedorDTO>> cambiarEstadoProveedor(@PathVariable Long id, @RequestParam("activo") Boolean activo) {
         return proveedorService.cambiarEstadoProveedor(id, activo)
                 .map(proveedorActualizado -> new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.OK.value())
                                 .message("Estado del proveedor actualizado")
                                 .data(proveedorActualizado)
                                 .build(),
                         HttpStatus.OK))
                 .orElse(new ResponseEntity<>(
-                        ApiResponse.<Proveedor>builder()
+                        ApiResponse.<ProveedorDTO>builder()
                                 .statusCode(HttpStatus.NOT_FOUND.value())
                                 .message("Proveedor no encontrado con ID: " + id)
                                 .build(),
