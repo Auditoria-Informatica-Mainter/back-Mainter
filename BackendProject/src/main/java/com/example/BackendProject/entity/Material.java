@@ -1,6 +1,7 @@
 package com.example.BackendProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -49,12 +50,16 @@ public class Material {
     private Sector sector;            // Relación con la entidad Sector
     
     @OneToMany(mappedBy = "material")
-    @JsonManagedReference
+    @JsonIgnore
     private List<ProveedorMaterial> proveedores = new ArrayList<>();
     
     @OneToMany(mappedBy = "material")
-    @JsonManagedReference
+    @JsonIgnore
     private List<DetallePedidoCompra> detallesPedidos = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "material")
+    @JsonIgnore
+    private List<ProductoMaterial> productos = new ArrayList<>();
     
     /**
      * Constructor con parámetros principales para crear un material
