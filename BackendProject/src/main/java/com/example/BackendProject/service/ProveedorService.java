@@ -173,7 +173,10 @@ public class ProveedorService {
      */
     private Proveedor convertirAEntidad(ProveedorDTO proveedorDTO) {
         Proveedor proveedor = new Proveedor();
-        proveedor.setId(proveedorDTO.getId());
+        // Solo establecer el ID si no es nulo (para actualizaciones)
+        if(proveedorDTO.getId() != null) {
+            proveedor.setId(proveedorDTO.getId());
+        }
         proveedor.setNombre(proveedorDTO.getNombre());
         proveedor.setRuc(proveedorDTO.getRuc());
         proveedor.setDireccion(proveedorDTO.getDireccion());
