@@ -42,7 +42,6 @@ public class Compra {
     
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
-    @JsonBackReference
     private Proveedor proveedor;
     
     @ManyToOne
