@@ -1,5 +1,7 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +46,7 @@ public class Proveedor {
     private List<ProveedorMaterial> materiales = new ArrayList<>();
     
     @OneToMany(mappedBy = "proveedor")
-    @JsonManagedReference
+    @JsonBackReference
     private List<Compra> compras = new ArrayList<>();
     
     /**

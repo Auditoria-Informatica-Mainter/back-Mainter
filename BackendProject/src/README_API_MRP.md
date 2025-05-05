@@ -10,7 +10,7 @@ La API cuenta con documentación interactiva gracias a Swagger, que permite visu
 
 🔗 **URL de Swagger UI:**
 
-[http://localhost:8080/mrp/swagger-ui/index.html#/](http://localhost:8080/mrp/swagger-ui/index.html#/)
+[http://localhost:8081/mrp/swagger-ui/index.html#/](http://localhost:8080/mrp/swagger-ui/index.html#/)
 
 ---
 
