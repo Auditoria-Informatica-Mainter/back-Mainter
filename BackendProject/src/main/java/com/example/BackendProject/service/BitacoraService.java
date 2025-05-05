@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.List;
 
 @Service
 public class BitacoraService {
@@ -57,5 +58,26 @@ public class BitacoraService {
                 LocalDateTime.now(),
                 direccionIp);
         logger.info(message);
+    }
+
+    // Métodos adicionales para consultar la bitácora
+    public List<Bitacora> obtenerHistorialCompleto() {
+        return bitacoraRepository.findAll();
+    }
+
+    public List<Bitacora> obtenerHistorialPorUsuario(Usuario usuario) {
+        return bitacoraRepository.findByUsuario(usuario);
+    }
+
+    public List<Bitacora> obtenerHistorialPorAccion(String accion) {
+        return bitacoraRepository.findByAccion(accion);
+    }
+
+    public List<Bitacora> obtenerHistorialPorRangoFechas(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+        return bitacoraRepository.findByFechaBetween(fechaInicio, fechaFin);
+    }
+
+    public List<Bitacora> obtenerHistorialPorDireccionIp(String direccionIp) {
+        return bitacoraRepository.findByDireccionIp(direccionIp);
     }
 }
