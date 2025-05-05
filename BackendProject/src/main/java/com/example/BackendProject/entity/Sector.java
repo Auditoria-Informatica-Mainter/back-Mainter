@@ -2,7 +2,7 @@ package com.example.BackendProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,7 +39,7 @@ public class Sector {
     
     @ManyToOne
     @JoinColumn(name = "almacen_id")
-    @JsonBackReference
+    @JsonIgnoreProperties("sectores")
     private Almacen almacen;
     
     @OneToMany(mappedBy = "sector")
