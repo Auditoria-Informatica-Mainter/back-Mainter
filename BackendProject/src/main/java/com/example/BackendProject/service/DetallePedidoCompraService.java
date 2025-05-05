@@ -69,12 +69,19 @@ public class DetallePedidoCompraService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Material no encontrado con ID: " + dto.getMaterialId()));
         
+        // Asignar valores por defecto si son null
+        Integer cantidad = dto.getCantidad() != null ? dto.getCantidad() : 0;
+        Double precio = dto.getPrecio() != null ? dto.getPrecio() : material.getPrecio(); // Usar precio del material si no se especifica
+        Double importe = dto.getImporte() != null ? dto.getImporte() : (precio * cantidad);
+        Double importeDesc = dto.getImporte_desc() != null ? dto.getImporte_desc() : 0.0;
+        String estado = dto.getEstado() != null ? dto.getEstado() : "PENDIENTE";
+        
         DetallePedidoCompra detallePedido = new DetallePedidoCompra(
-                dto.getCantidad(),
-                dto.getPrecio(),
-                dto.getImporte(),
-                dto.getImporte_desc(),
-                dto.getEstado(),
+                cantidad,
+                precio,
+                importe,
+                importeDesc,
+                estado,
                 compra,
                 material
         );
@@ -106,11 +113,40 @@ public class DetallePedidoCompraService {
             detallePedido.setMaterial(material);
         }
         
-        detallePedido.setCantidad(dto.getCantidad());
-        detallePedido.setPrecio(dto.getPrecio());
-        detallePedido.setImporte(dto.getImporte());
-        detallePedido.setImporte_desc(dto.getImporte_desc());
-        detallePedido.setEstado(dto.getEstado());
+        // Actualizar cantidad si se proporciona
+        if (dto.getCantidad() != null) {
+            detallePedido.setCantidad(dto.getCantidad());
+        }
+        
+        // Actualizar precio si se proporciona
+        if (dto.getPrecio() != null) {
+            detallePedido.setPrecio(dto.getPrecio());
+        } else if (detallePedido.getPrecio() == null && detallePedido.getMaterial() != null) {
+            // Si no tiene precio, usar el del material
+            detallePedido.setPrecio(detallePedido.getMaterial().getPrecio());
+        }
+        
+        // Calcular y actualizar importe si es necesario
+        if (dto.getImporte() != null) {
+            detallePedido.setImporte(dto.getImporte());
+        } else if (detallePedido.getCantidad() != null && detallePedido.getPrecio() != null) {
+            // Calcular importe basado en cantidad y precio
+            detallePedido.setImporte(detallePedido.getCantidad() * detallePedido.getPrecio());
+        }
+        
+        // Actualizar importe con descuento si se proporciona
+        if (dto.getImporte_desc() != null) {
+            detallePedido.setImporte_desc(dto.getImporte_desc());
+        } else if (detallePedido.getImporte_desc() == null) {
+            detallePedido.setImporte_desc(0.0); // Valor por defecto
+        }
+        
+        // Actualizar estado si se proporciona
+        if (dto.getEstado() != null) {
+            detallePedido.setEstado(dto.getEstado());
+        } else if (detallePedido.getEstado() == null) {
+            detallePedido.setEstado("PENDIENTE"); // Estado por defecto
+        }
         
         return detallePedidoCompraRepository.save(detallePedido);
     }
@@ -145,5 +181,50 @@ public class DetallePedidoCompraService {
      */
     public List<DetallePedidoCompra> obtenerDetallesPorMaterial(Long materialId) {
         return detallePedidoCompraRepository.findByMaterialId(materialId);
+    }
+    
+    /**
+     * Actualiza los valores NULL en todos los registros existentes
+     * @return Número de registros actualizados
+     */
+    public int actualizarValoresNullEnRegistrosExistentes() {
+        List<DetallePedidoCompra> detalles = detallePedidoCompraRepository.findAll();
+        int actualizados = 0;
+        
+        for (DetallePedidoCompra detalle : detalles) {
+            boolean requiereActualizacion = false;
+            
+            // Verificar y actualizar precio si es null
+            if (detalle.getPrecio() == null && detalle.getMaterial() != null) {
+                detalle.setPrecio(detalle.getMaterial().getPrecio());
+                requiereActualizacion = true;
+            }
+            
+            // Verificar y actualizar importe si es null
+            if (detalle.getImporte() == null && detalle.getCantidad() != null && detalle.getPrecio() != null) {
+                detalle.setImporte(detalle.getCantidad() * detalle.getPrecio());
+                requiereActualizacion = true;
+            }
+            
+            // Verificar y actualizar importe_desc si es null
+            if (detalle.getImporte_desc() == null) {
+                detalle.setImporte_desc(0.0);
+                requiereActualizacion = true;
+            }
+            
+            // Verificar y actualizar estado si es null
+            if (detalle.getEstado() == null) {
+                detalle.setEstado("PENDIENTE");
+                requiereActualizacion = true;
+            }
+            
+            // Si algún campo requiere actualización, guardar el detalle
+            if (requiereActualizacion) {
+                detallePedidoCompraRepository.save(detalle);
+                actualizados++;
+            }
+        }
+        
+        return actualizados;
     }
 } 

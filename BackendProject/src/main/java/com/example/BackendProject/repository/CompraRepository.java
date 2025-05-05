@@ -56,4 +56,8 @@ public interface CompraRepository extends JpaRepository<Compra, Long> {
      * @return lista de compras del usuario especificado
      */
     List<Compra> findByUsuarioId(Long usuarioId);
+
+
+    List<Compra> findByProveedorIdAndFechaBetween(Long proveedorId, Date fechaInicio, Date fechaFin);
+
 } 

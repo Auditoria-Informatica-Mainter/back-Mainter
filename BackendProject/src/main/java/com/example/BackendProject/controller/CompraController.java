@@ -164,4 +164,39 @@ public class CompraController {
                 HttpStatus.OK
         );
     }
+    
+    @Operation(summary = "Buscar compras por material y rango de fechas")
+    @GetMapping("/material/{materialId}/fechas")
+    public ResponseEntity<ApiResponse<List<Compra>>> obtenerComprasPorMaterialYFechas(
+            @PathVariable Long materialId,
+            @RequestParam("fechaInicio") @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date fechaInicio,
+            @RequestParam("fechaFin") @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date fechaFin) {
+        
+        List<Compra> compras = compraService.buscarComprasPorMaterialYRangoFechas(materialId, fechaInicio, fechaFin);
+        return new ResponseEntity<>(
+                ApiResponse.<List<Compra>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Compras del material ID: " + materialId + " entre fechas: " + fechaInicio + " y " + fechaFin)
+                        .data(compras)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+    
+    @Operation(summary = "Buscar todas las compras en un rango de fechas")
+    @GetMapping("/materiales/fechas")
+    public ResponseEntity<ApiResponse<List<Compra>>> obtenerComprasTodosMaterialesEnFechas(
+            @RequestParam("fechaInicio") @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date fechaInicio,
+            @RequestParam("fechaFin") @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd") java.util.Date fechaFin) {
+        
+        List<Compra> compras = compraService.buscarComprasTodosMaterialesEnRangoFechas(fechaInicio, fechaFin);
+        return new ResponseEntity<>(
+                ApiResponse.<List<Compra>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Todas las compras entre fechas: " + fechaInicio + " y " + fechaFin)
+                        .data(compras)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
 } 

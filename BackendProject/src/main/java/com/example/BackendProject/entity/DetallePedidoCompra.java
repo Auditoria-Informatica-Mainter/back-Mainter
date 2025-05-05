@@ -1,6 +1,7 @@
 package com.example.BackendProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,10 +26,19 @@ public class DetallePedidoCompra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
+    
+    @Column(name = "estado", nullable = true)
     private String estado;
+    
+    @Column(name = "importe", nullable = true)
     private Double importe;
+    
+    @Column(name = "importe_desc", nullable = true)
     private Double importe_desc;
+    
+    @Column(name = "precio", nullable = true)
     private Double precio;
     
     @ManyToOne
@@ -38,7 +48,6 @@ public class DetallePedidoCompra {
     
     @ManyToOne
     @JoinColumn(name = "material_id")
-    @JsonBackReference
     private Material material;
     
     /**

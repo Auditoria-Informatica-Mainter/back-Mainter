@@ -16,7 +16,6 @@ public class ReporteDTO {
     private Long id;
     private Date fechaInicio;
     private Date fechaFin;
-    private String descripcion;
     
     // Información resumida del usuario que solicitó el reporte
     private Long usuarioId;
