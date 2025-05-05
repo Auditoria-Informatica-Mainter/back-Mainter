@@ -4,9 +4,11 @@ import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.MaterialDTO;
 import com.example.BackendProject.entity.Categoria;
 import com.example.BackendProject.entity.Material;
+import com.example.BackendProject.entity.ProductoMaterial;
 import com.example.BackendProject.entity.Sector;
 import com.example.BackendProject.repository.CategoriaRepository;
 import com.example.BackendProject.repository.MaterialRepository;
+import com.example.BackendProject.repository.ProductoMaterialRepository;
 import com.example.BackendProject.repository.SectorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +27,18 @@ public class MaterialService {
     private final MaterialRepository materialRepository;
     private final CategoriaRepository categoriaRepository;
     private final SectorRepository sectorRepository;
+    private final ProductoMaterialRepository productoMaterialRepository;
     
     @Autowired
     public MaterialService(
             MaterialRepository materialRepository, 
             CategoriaRepository categoriaRepository,
-            SectorRepository sectorRepository) {
+            SectorRepository sectorRepository,
+            ProductoMaterialRepository productoMaterialRepository) {
         this.materialRepository = materialRepository;
         this.categoriaRepository = categoriaRepository;
         this.sectorRepository = sectorRepository;
+        this.productoMaterialRepository = productoMaterialRepository;
     }
     
     /**
@@ -265,5 +270,21 @@ public class MaterialService {
      */
     public List<Material> obtenerMaterialesNecesitanReabastecimiento() {
         return materialRepository.findMaterialesNecesitanReabastecimiento();
+    }
+    
+    /**
+     * Obtiene las relaciones producto-material para un material específico
+     * 
+     * @param materialId ID del material
+     * @return Lista de relaciones producto-material que utilizan el material
+     */
+    public List<ProductoMaterial> obtenerProductosQueLlevanElMaterial(Long materialId) {
+        // Verificar que el material existe
+        if (!materialRepository.existsById(materialId)) {
+            throw new EntityNotFoundException("Material no encontrado con ID: " + materialId);
+        }
+        
+        // Buscar todas las relaciones producto-material que incluyen este material
+        return productoMaterialRepository.findByMaterialId(materialId);
     }
 }

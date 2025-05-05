@@ -1,3 +1,53 @@
+# Sistema MRP para Carpintería - Documentación Completa de API
+
+Este documento detalla todos los endpoints disponibles en el Sistema MRP para la gestión de una carpintería, incluyendo ejemplos de uso, formatos JSON y análisis funcional detallado.
+
+## Tabla de Contenidos
+
+1. [Gestión de Pedidos de Compra](#gestión-de-pedidos-de-compra)
+   - [Secuencia de Pasos para la Gestión de Pedidos](#secuencia-de-pasos-para-la-gestión-de-pedidos)
+   - [Endpoints de Pedidos](#endpoints-de-pedidos)
+   - [Endpoints de Detalles de Pedidos](#endpoints-de-detalles-de-pedidos)
+
+2. [Gestión de Materiales](#gestión-de-materiales)
+   - [Secuencia de Pasos para la Gestión de Materiales](#secuencia-de-pasos-para-la-gestión-de-materiales)
+   - [Endpoints de Materiales](#endpoints-de-materiales)
+
+3. [Gestión de Productos](#gestión-de-productos)
+   - [Secuencia de Pasos para la Gestión de Productos](#secuencia-de-pasos-para-la-gestión-de-productos)
+   - [Endpoints de Productos](#endpoints-de-productos)
+
+4. [Gestión de Clientes](#gestión-de-clientes)
+   - [Secuencia de Pasos para la Gestión de Clientes](#secuencia-de-pasos-para-la-gestión-de-clientes)
+   - [Endpoints de Clientes](#endpoints-de-clientes)
+
+5. [Gestión de Categorías](#gestión-de-categorías)
+   - [Secuencia de Pasos para la Gestión de Categorías](#secuencia-de-pasos-para-la-gestión-de-categorías)
+   - [Endpoints de Categorías](#endpoints-de-categorías)
+
+6. [Gestión de Proveedores](#gestión-de-proveedores)
+   - [Secuencia de Pasos para la Gestión de Proveedores](#secuencia-de-pasos-para-la-gestión-de-proveedores)
+   - [Endpoints de Proveedores](#endpoints-de-proveedores)
+
+7. [Gestión de Almacenes y Sectores](#gestión-de-almacenes-y-sectores)
+   - [Secuencia de Pasos para la Gestión de Almacenes y Sectores](#secuencia-de-pasos-para-la-gestión-de-almacenes-y-sectores)
+   - [Endpoints de Almacenes](#endpoints-de-almacenes)
+   - [Endpoints de Sectores](#endpoints-de-sectores)
+
+8. [Gestión de Usuarios](#gestión-de-usuarios)
+   - [Secuencia de Pasos para la Gestión de Usuarios](#secuencia-de-pasos-para-la-gestión-de-usuarios)
+   - [Endpoints de Usuarios](#endpoints-de-usuarios)
+
+9. [Autenticación y Seguridad](#autenticación-y-seguridad)
+   - [Secuencia de Pasos para la Autenticación](#secuencia-de-pasos-para-la-autenticación)
+   - [Endpoints de Autenticación](#endpoints-de-autenticación)
+
+10. [Notas sobre Implementación](#notas-sobre-implementación)
+    - [Notas sobre Formatos de Respuesta](#notas-sobre-formatos-de-respuesta)
+    - [Parámetros de API](#parámetros-de-api)
+
+11. [Notas Importantes](#notas-importantes)
+
 ## Gestión de Proveedores
 
 ### Secuencia de Pasos para la Gestión de Proveedores
@@ -693,215 +743,6 @@
 }
 ```
 
-## Gestión de Categorías
-
-### Secuencia de Pasos para la Gestión de Categorías
-1. **Estructura Inicial**
-   - Autenticarse como ADMIN
-   - **Crear subcategorías base primero** con `POST /api/subcategorias`
-   - Las subcategorías son fundamentales y deben crearse antes que las categorías
-   - Establecer jerarquías principales
-
-2. **Configuración**
-   - Crear categorías con `POST /api/categorias`
-   - Asociar a las subcategorías previamente creadas
-   - Las categorías son principalmente para clasificar materias primas comprables (tornillos, madera, herramientas, visagras, etc.)
-   - Definir relaciones jerárquicas
-
-3. **Organización**
-   - Clasificar materiales considerados como materia prima para la producción
-   - Mantener estructura coherente
-   - Gestionar relaciones
-
-4. **Mantenimiento**
-   - Actualizar categorías según necesidad
-   - Reclasificar elementos
-   - Mantener documentación
-
-> **Nota importante**: El sistema requiere que primero se creen las subcategorías, para luego poder asociarlas a las categorías. Las categorías están diseñadas específicamente para clasificar materiales considerados como materia prima comprable (tornillos, madera, herramientas, visagras, etc.), es decir, materiales utilizados en la producción.
-
-### Endpoints de Categorías
-
-#### 1. Crear Categoría
-- **Endpoint**: `POST /api/categorias`
-- **Summary**: Registra una nueva categoría en el sistema
-- **Funcionalidad**:
-  - Valida unicidad del nombre de categoría
-  - Permite asignar una subcategoría (opcional)
-  - Establece estructura jerárquica de categorías
-- **Request**:
-```json
-{
-  "nombre": "Maderas",
-  "descripcion": "Tipos de maderas para carpintería",
-  "subCategoriaId": 1
-}
-```
-- **Response** (201 Created):
-```json
-{
-  "statusCode": 201,
-  "message": "Categoría creada exitosamente",
-  "data": {
-    "id": 1,
-    "nombre": "Maderas",
-    "descripcion": "Tipos de maderas para carpintería",
-    "subcategoria": {
-      "id": 1,
-      "nombre": "Materia Prima"
-    }
-  }
-}
-```
-
-#### 2. Obtener Todas las Categorías
-- **Endpoint**: `GET /api/categorias`
-- **Summary**: Lista todas las categorías registradas
-- **Funcionalidad**:
-  - Retorna la lista completa de categorías
-  - Incluye información de subcategorías asociadas
-  - Facilita la navegación jerárquica
-- **Response** (200 OK):
-```json
-{
-  "statusCode": 200,
-  "message": "Lista de categorías",
-  "data": [
-    {
-      "id": 1,
-      "nombre": "Maderas",
-      "descripcion": "Tipos de maderas para carpintería",
-      "subcategoria": {
-        "id": 1,
-        "nombre": "Materia Prima"
-      }
-    },
-    {
-      "id": 2,
-      "nombre": "Muebles",
-      "descripcion": "Productos terminados",
-      "subcategoria": {
-        "id": 2,
-        "nombre": "Producto Final"
-      }
-    }
-  ]
-}
-```
-
-#### 3. Obtener Categoría por ID
-- **Endpoint**: `GET /api/categorias/{id}`
-- **Summary**: Obtiene información detallada de una categoría específica
-- **Funcionalidad**:
-  - Retorna todos los datos de la categoría
-  - Incluye información de subcategoría asociada
-  - Opcionalmente lista productos o materiales en esa categoría
-- **Response** (200 OK):
-```json
-{
-  "statusCode": 200,
-  "message": "Categoría encontrada",
-  "data": {
-    "id": 1,
-    "nombre": "Maderas",
-    "descripcion": "Tipos de maderas para carpintería",
-    "subcategoria": {
-      "id": 1,
-      "nombre": "Materia Prima"
-    },
-    "materiales": [
-      {
-        "id": 1,
-        "nombre": "Madera de Pino"
-      },
-      {
-        "id": 2,
-        "nombre": "Madera de Roble"
-      }
-    ]
-  }
-}
-```
-
-#### 4. Obtener Categoría por Nombre
-- **Endpoint**: `GET /api/categorias/nombre/{nombre}`
-- **Summary**: Busca una categoría por su nombre exacto
-- **Funcionalidad**:
-  - Permite búsquedas precisas por nombre
-  - Facilita la identificación de categorías específicas
-- **Response**: Similar a "Obtener Categoría por ID"
-
-#### 5. Obtener Categorías por Subcategoría
-- **Endpoint**: `GET /api/categorias/subcategoria/{subCategoriaId}`
-- **Summary**: Lista categorías asociadas a una subcategoría específica
-- **Funcionalidad**:
-  - Permite filtrar categorías por su subcategoría padre
-  - Facilita la navegación jerárquica del sistema de clasificación
-- **Response** (200 OK):
-```json
-{
-  "statusCode": 200,
-  "message": "Categorías de la subcategoría ID: 1",
-  "data": [
-    {
-      "id": 1,
-      "nombre": "Maderas",
-      "descripcion": "Tipos de maderas para carpintería",
-      "subcategoria": {
-        "id": 1,
-        "nombre": "Materia Prima"
-      }
-    },
-    {
-      "id": 3,
-      "nombre": "Herrajes",
-      "descripcion": "Herrajes y accesorios metálicos",
-      "subcategoria": {
-        "id": 1,
-        "nombre": "Materia Prima"
-      }
-    }
-  ]
-}
-```
-
-#### 6. Actualizar Categoría
-- **Endpoint**: `PUT /api/categorias/{id}`
-- **Summary**: Actualiza información de una categoría existente
-- **Funcionalidad**:
-  - Permite modificar propiedades de la categoría
-  - Valida la existencia de subcategoría en caso de cambio
-  - Mantiene integridad referencial con productos y materiales
-- **Request**: Similar al de creación
-- **Response** (200 OK):
-```json
-{
-  "statusCode": 200,
-  "message": "Categoría actualizada exitosamente",
-  "data": {
-    "id": 1,
-    "nombre": "Maderas Premium",
-    "descripcion": "Maderas de alta calidad para carpintería fina",
-    "subcategoria": {
-      "id": 1,
-      "nombre": "Materia Prima"
-    }
-  }
-}
-```
-
-#### 7. Eliminar Categoría
-- **Endpoint**: `DELETE /api/categorias/{id}`
-- **Summary**: Elimina una categoría del sistema
-- **Nota**: En la implementación actual, este endpoint está marcado como no implementado
-- **Response** (405 Method Not Allowed):
-```json
-{
-  "statusCode": 405,
-  "message": "Eliminación de categorías no implementada"
-}
-```
-
 ## Gestión de Productos
 
 ### Secuencia de Pasos para la Gestión de Productos
@@ -914,21 +755,28 @@
    - Crear producto con `POST /api/productos`
    - Definir BOM y requerimientos de materiales
    - Establecer niveles de stock mínimo
+   - Gestionar imágenes y documentación técnica
 
 3. **Control de Producción**
    - Verificar disponibilidad con `GET /api/productos/{id}/verificar-disponibilidad`
    - Registrar producción usando `POST /api/productos/{id}/producir`
-   - Actualizar inventario de materiales automáticamente
+   - Sistema valida atómicamente la disponibilidad de todos los materiales
+   - Actualiza inventario de materiales automáticamente solo si hay suficiente stock
+   - Evita problemas de concurrencia en el consumo de materiales
 
 4. **Seguimiento**
    - Monitorear stock con `GET /api/productos/bajo-stock`
    - Gestionar producción según demanda
    - Mantener registros actualizados
+   - Verificar integridad de materiales consumidos
 
 5. **Mantenimiento**
    - Actualizar información de productos
    - Gestionar imágenes y documentación
    - Mantener BOM actualizada
+   - Validar consistencia de stock
+
+> **Nota importante**: El sistema implementa validación atómica para la producción, asegurando que solo se inicien procesos productivos cuando todos los materiales necesarios están disponibles. Esto previene inconsistencias en el inventario y garantiza la integridad de los datos.
 
 ### Endpoints de Productos
 
@@ -1247,12 +1095,13 @@
 #### 12. Registrar Producción
 - **Endpoint**: `POST /api/productos/{id}/producir`
 - **Permisos**: ADMIN, PRODUCCION
-- **Summary**: Registra la producción de un producto, actualizando inventario
+- **Summary**: Registra la producción de un producto, validando y consumiendo materiales de forma atómica
 - **Funcionalidad**:
-  - Verifica disponibilidad de materiales
-  - Consume automáticamente los materiales necesarios
-  - Actualiza el stock del producto
-  - Registra el movimiento en el historial
+  - Valida atómicamente la disponibilidad de todos los materiales necesarios
+  - Solo procede con la producción si hay suficiente stock de todos los materiales
+  - Consume los materiales y actualiza el stock del producto en una sola transacción
+  - Evita problemas de concurrencia en el consumo de materiales
+  - Mantiene la integridad del inventario
 - **Parámetros**:
   - `cantidad`: Cantidad de unidades a producir
 - **Response** (200 OK):
@@ -1267,14 +1116,233 @@
     {
       "materialId": 1,
       "nombre": "Madera de Pino",
-      "cantidad": 6
+      "cantidad": 6,
+      "stock_restante": 94
     },
     {
       "materialId": 2,
       "nombre": "Clavos",
-      "cantidad": 2
+      "cantidad": 2,
+      "stock_restante": 498
     }
   ]
+}
+```
+- **Response** (400 Bad Request - Stock Insuficiente):
+```json
+{
+  "statusCode": 400,
+  "message": "Stock insuficiente del material Madera de Pino (ID: 1). Disponible: 4, Necesario: 6",
+  "error": "Bad Request"
+}
+```
+
+## Gestión de Categorías
+
+### Secuencia de Pasos para la Gestión de Categorías
+1. **Estructura Inicial**
+   - Autenticarse como ADMIN
+   - **Crear subcategorías base primero** con `POST /api/subcategorias`
+   - Las subcategorías son fundamentales y deben crearse antes que las categorías
+   - Establecer jerarquías principales
+
+2. **Configuración**
+   - Crear categorías con `POST /api/categorias`
+   - Asociar a las subcategorías previamente creadas
+   - Las categorías son principalmente para clasificar materias primas comprables (tornillos, madera, herramientas, visagras, etc.)
+   - Definir relaciones jerárquicas
+
+3. **Organización**
+   - Clasificar materiales considerados como materia prima para la producción
+   - Mantener estructura coherente
+   - Gestionar relaciones
+
+4. **Mantenimiento**
+   - Actualizar categorías según necesidad
+   - Reclasificar elementos
+   - Mantener documentación
+
+> **Nota importante**: El sistema requiere que primero se creen las subcategorías, para luego poder asociarlas a las categorías. Las categorías están diseñadas específicamente para clasificar materiales considerados como materia prima comprable (tornillos, madera, herramientas, visagras, etc.), es decir, materiales utilizados en la producción.
+
+### Endpoints de Categorías
+
+#### 1. Crear Categoría
+- **Endpoint**: `POST /api/categorias`
+- **Summary**: Registra una nueva categoría en el sistema
+- **Funcionalidad**:
+  - Valida unicidad del nombre de categoría
+  - Permite asignar una subcategoría (opcional)
+  - Establece estructura jerárquica de categorías
+- **Request**:
+```json
+{
+  "nombre": "Maderas",
+  "descripcion": "Tipos de maderas para carpintería",
+  "subCategoriaId": 1
+}
+```
+- **Response** (201 Created):
+```json
+{
+  "statusCode": 201,
+  "message": "Categoría creada exitosamente",
+  "data": {
+    "id": 1,
+    "nombre": "Maderas",
+    "descripcion": "Tipos de maderas para carpintería",
+    "subcategoria": {
+      "id": 1,
+      "nombre": "Materia Prima"
+    }
+  }
+}
+```
+
+#### 2. Obtener Todas las Categorías
+- **Endpoint**: `GET /api/categorias`
+- **Summary**: Lista todas las categorías registradas
+- **Funcionalidad**:
+  - Retorna la lista completa de categorías
+  - Incluye información de subcategorías asociadas
+  - Facilita la navegación jerárquica
+- **Response** (200 OK):
+```json
+{
+  "statusCode": 200,
+  "message": "Lista de categorías",
+  "data": [
+    {
+      "id": 1,
+      "nombre": "Maderas",
+      "descripcion": "Tipos de maderas para carpintería",
+      "subcategoria": {
+        "id": 1,
+        "nombre": "Materia Prima"
+      }
+    },
+    {
+      "id": 2,
+      "nombre": "Muebles",
+      "descripcion": "Productos terminados",
+      "subcategoria": {
+        "id": 2,
+        "nombre": "Producto Final"
+      }
+    }
+  ]
+}
+```
+
+#### 3. Obtener Categoría por ID
+- **Endpoint**: `GET /api/categorias/{id}`
+- **Summary**: Obtiene información detallada de una categoría específica
+- **Funcionalidad**:
+  - Retorna todos los datos de la categoría
+  - Incluye información de subcategoría asociada
+  - Opcionalmente lista productos o materiales en esa categoría
+- **Response** (200 OK):
+```json
+{
+  "statusCode": 200,
+  "message": "Categoría encontrada",
+  "data": {
+    "id": 1,
+    "nombre": "Maderas",
+    "descripcion": "Tipos de maderas para carpintería",
+    "subcategoria": {
+      "id": 1,
+      "nombre": "Materia Prima"
+    },
+    "materiales": [
+      {
+        "id": 1,
+        "nombre": "Madera de Pino"
+      },
+      {
+        "id": 2,
+        "nombre": "Madera de Roble"
+      }
+    ]
+  }
+}
+```
+
+#### 4. Obtener Categoría por Nombre
+- **Endpoint**: `GET /api/categorias/nombre/{nombre}`
+- **Summary**: Busca una categoría por su nombre exacto
+- **Funcionalidad**:
+  - Permite búsquedas precisas por nombre
+  - Facilita la identificación de categorías específicas
+- **Response**: Similar a "Obtener Categoría por ID"
+
+#### 5. Obtener Categorías por Subcategoría
+- **Endpoint**: `GET /api/categorias/subcategoria/{subCategoriaId}`
+- **Summary**: Lista categorías asociadas a una subcategoría específica
+- **Funcionalidad**:
+  - Permite filtrar categorías por su subcategoría padre
+  - Facilita la navegación jerárquica del sistema de clasificación
+- **Response** (200 OK):
+```json
+{
+  "statusCode": 200,
+  "message": "Categorías de la subcategoría ID: 1",
+  "data": [
+    {
+      "id": 1,
+      "nombre": "Maderas",
+      "descripcion": "Tipos de maderas para carpintería",
+      "subcategoria": {
+        "id": 1,
+        "nombre": "Materia Prima"
+      }
+    },
+    {
+      "id": 3,
+      "nombre": "Herrajes",
+      "descripcion": "Herrajes y accesorios metálicos",
+      "subcategoria": {
+        "id": 1,
+        "nombre": "Materia Prima"
+      }
+    }
+  ]
+}
+```
+
+#### 6. Actualizar Categoría
+- **Endpoint**: `PUT /api/categorias/{id}`
+- **Summary**: Actualiza información de una categoría existente
+- **Funcionalidad**:
+  - Permite modificar propiedades de la categoría
+  - Valida la existencia de subcategoría en caso de cambio
+  - Mantiene integridad referencial con productos y materiales
+- **Request**: Similar al de creación
+- **Response** (200 OK):
+```json
+{
+  "statusCode": 200,
+  "message": "Categoría actualizada exitosamente",
+  "data": {
+    "id": 1,
+    "nombre": "Maderas Premium",
+    "descripcion": "Maderas de alta calidad para carpintería fina",
+    "subcategoria": {
+      "id": 1,
+      "nombre": "Materia Prima"
+    }
+  }
+}
+```
+
+#### 7. Eliminar Categoría
+- **Endpoint**: `DELETE /api/categorias/{id}`
+- **Summary**: Elimina una categoría del sistema
+- **Nota**: En la implementación actual, este endpoint está marcado como no implementado
+- **Response** (405 Method Not Allowed):
+```json
+{
+  "statusCode": 405,
+  "message": "Eliminación de categorías no implementada"
 }
 ```
 
@@ -2267,4 +2335,4 @@
   "statusCode": 204,
   "message": "Detalle de pedido de compra eliminado exitosamente"
 }
-``` 
+```

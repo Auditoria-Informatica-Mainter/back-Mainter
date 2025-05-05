@@ -1,5 +1,7 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +27,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Proveedor {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "proveedor_id_seq")
+    @SequenceGenerator(name = "proveedor_id_seq", sequenceName = "proveedor_id_seq", allocationSize = 1)
     private Long id;
     
     private String nombre;
@@ -42,8 +46,8 @@ public class Proveedor {
     private List<ProveedorMaterial> materiales = new ArrayList<>();
     
     @OneToMany(mappedBy = "proveedor")
-    @JsonManagedReference
-    private List<Pedido> pedidos = new ArrayList<>();
+    @JsonBackReference
+    private List<Compra> compras = new ArrayList<>();
     
     /**
      * Constructor con parámetros principales para crear un proveedor

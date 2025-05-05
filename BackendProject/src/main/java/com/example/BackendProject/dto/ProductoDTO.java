@@ -32,12 +32,9 @@ public class ProductoDTO {
     @Min(value = 0, message = "El stock mínimo no puede ser negativo")
     private Integer stock_minimo;
     
-    @NotNull(message = "La categoría es obligatoria")
-    private Long categoriaId;
-    
-    // Campo opcional
     private String imagen;
+    private String tiempo;
     
     // Lista de materiales necesarios para el producto
     private List<@Valid ProductoMaterialDTO> materiales;
-} 
+}

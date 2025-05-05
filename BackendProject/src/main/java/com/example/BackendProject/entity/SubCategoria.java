@@ -1,5 +1,6 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,8 +31,9 @@ public class SubCategoria {
 
     private String descripcion;
     
-    @JsonIgnore
+
     @OneToMany(mappedBy = "subCategoria")
+    @JsonIgnore
     private List<Categoria> categorias = new ArrayList<>();
 
     public SubCategoria(String nombre, String descripcion) {

@@ -32,11 +32,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     List<Producto> findProductosWithLowStock();
     
     /**
-     * Busca productos por categoría
-     */
-    List<Producto> findByCategoriaId(Long categoriaId);
-    
-    /**
      * Busca productos que contengan el término de búsqueda en el nombre o descripción
      */
     @Query("SELECT p FROM Producto p WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(p.descripcion) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")

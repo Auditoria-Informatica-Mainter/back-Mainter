@@ -43,23 +43,19 @@ public class ProductoService {
      * 
      * @param productoDTO DTO con los datos del producto a crear y sus materiales
      * @return Producto creado
-     * @throws EntityNotFoundException si la categoría o algún material no existe
+     * @throws EntityNotFoundException si algún material no existe
      */
     @LoggableAction
     @Transactional
-    public Producto crearProducto(ProductoDTO productoDTO) {
-        // Buscar la categoría
-        Categoria categoria = categoriaRepository.findById(productoDTO.getCategoriaId())
-                .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada con ID: " + productoDTO.getCategoriaId()));
-        
+    public Producto crearProducto(ProductoDTO productoDTO) {        
         // Crear el nuevo producto
         Producto nuevoProducto = new Producto(
                 productoDTO.getNombre(),
                 productoDTO.getDescripcion(),
                 productoDTO.getStock(),
                 productoDTO.getStock_minimo(),
-                productoDTO.getImagen(),
-                categoria
+                productoDTO.getTiempo(),
+                productoDTO.getImagen()
         );
         
         // Guardar producto
@@ -144,35 +140,25 @@ public class ProductoService {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado con ID: " + id));
         
-        // Buscar la categoría si se proporciona un ID
-        if (productoDTO.getCategoriaId() != null) {
-            Categoria categoria = categoriaRepository.findById(productoDTO.getCategoriaId())
-                    .orElseThrow(() -> new EntityNotFoundException("Categoría no encontrada con ID: " + productoDTO.getCategoriaId()));
-            producto.setCategoria(categoria);
-        }
-        
-        // Actualizar los campos
+        // Actualizar campos básicos
         producto.setNombre(productoDTO.getNombre());
         producto.setDescripcion(productoDTO.getDescripcion());
         producto.setStock(productoDTO.getStock());
         producto.setStock_minimo(productoDTO.getStock_minimo());
-        
-        // Actualizar imagen solo si se proporciona
+        producto.setTiempo(productoDTO.getTiempo());
         if (productoDTO.getImagen() != null) {
             producto.setImagen(productoDTO.getImagen());
         }
         
-        // Guardar los cambios del producto
         Producto productoActualizado = productoRepository.save(producto);
-        
-        // Actualizar los materiales si se proporcionan
-        if (productoDTO.getMateriales() != null) {
+
+        // Actualizar materiales si se proporcionan
+        if (productoDTO.getMateriales() != null && !productoDTO.getMateriales().isEmpty()) {
             // Eliminar relaciones existentes
             productoMaterialRepository.deleteByProductoId(id);
             
             // Crear nuevas relaciones
             for (ProductoMaterialDTO materialDTO : productoDTO.getMateriales()) {
-                // Buscar el material
                 Material material = materialRepository.findById(materialDTO.getMaterialId())
                         .orElseThrow(() -> new EntityNotFoundException("Material no encontrado con ID: " + materialDTO.getMaterialId()));
                 
@@ -362,5 +348,48 @@ public class ProductoService {
         
         // Actualizar stock del producto
         actualizarStock(productoId, cantidad);
+    }
+
+    /**
+     * Registra la producción de un producto, validando de forma atómica los materiales necesarios.
+     * 
+     * @param productoId ID del producto
+     * @param cantidad Cantidad a producir
+     * @throws EntityNotFoundException si el producto no existe
+     * @throws IllegalStateException si no hay suficiente stock de algún material
+     */
+    @Transactional
+    public void registrarProduccion(Long productoId, Integer cantidad) {
+        Producto producto = obtenerProductoPorId(productoId);
+        List<ProductoMaterial> materialesNecesarios = productoMaterialRepository.findByProductoId(productoId);
+        
+        // Validación atómica de disponibilidad de materiales
+        for (ProductoMaterial pm : materialesNecesarios) {
+            Material material = pm.getMaterial();
+            int cantidadNecesaria = pm.getCantidad() * cantidad;
+            
+            if (material.getStockActual() < cantidadNecesaria) {
+                throw new IllegalStateException(
+                    String.format("Stock insuficiente del material %s (ID: %d). Disponible: %d, Necesario: %d",
+                        material.getNombre(),
+                        material.getId(),
+                        material.getStockActual(),
+                        cantidadNecesaria)
+                );
+            }
+        }
+
+        // Si llegamos aquí, hay suficiente stock de todos los materiales
+        // Proceder con el consumo de materiales
+        for (ProductoMaterial pm : materialesNecesarios) {
+            Material material = pm.getMaterial();
+            int cantidadNecesaria = pm.getCantidad() * cantidad;
+            material.setStockActual(material.getStockActual() - cantidadNecesaria);
+            materialRepository.save(material);
+        }
+
+        // Actualizar stock del producto
+        producto.setStock(producto.getStock() + cantidad);
+        productoRepository.save(producto);
     }
 }

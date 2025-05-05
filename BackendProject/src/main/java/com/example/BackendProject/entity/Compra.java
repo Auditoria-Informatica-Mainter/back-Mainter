@@ -20,14 +20,14 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Entidad que representa un pedido (compra) en el sistema.
+ * Entidad que representa una compra en el sistema.
  */
 @Entity
-@Table(name = "pedido")
+@Table(name = "compra")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Pedido {
+public class Compra {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,20 +42,19 @@ public class Pedido {
     
     @ManyToOne
     @JoinColumn(name = "proveedor_id")
-    @JsonBackReference
     private Proveedor proveedor;
     
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
     
-    @OneToMany(mappedBy = "pedido")
+    @OneToMany(mappedBy = "compra")
     private List<DetallePedidoCompra> detalles = new ArrayList<>();
     
     /**
      * Constructor con parámetros principales
      */
-    public Pedido(String estado, Date fecha, Double importe_total, 
+    public Compra(String estado, Date fecha, Double importe_total, 
                  Double importe_descuento, Proveedor proveedor, Usuario usuario) {
         this.estado = estado;
         this.fecha = fecha;
@@ -64,4 +63,4 @@ public class Pedido {
         this.proveedor = proveedor;
         this.usuario = usuario;
     }
-}
+} 
