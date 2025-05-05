@@ -21,10 +21,15 @@ public class Reporte {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date fecha_Inicio;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecha_Fin;
+
+    @Column(length = 4000)
+    private String descripcion;
+
     @ManyToOne
     private Usuario solictado_por;
-
-
 
     @ManyToOne
     private Compra compra;

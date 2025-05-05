@@ -1,6 +1,8 @@
 package com.example.BackendProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,6 +43,7 @@ public class Sector {
     private Almacen almacen;
     
     @OneToMany(mappedBy = "sector")
+    @JsonIgnore
     private List<Material> materiales = new ArrayList<>();
     
     /**
