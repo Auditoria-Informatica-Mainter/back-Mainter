@@ -8,17 +8,19 @@ public class AuthResponse {
 	private String email;
 	private String nombre;
 	private String apellido;
+	private String telefono;
 	private Long id;
 	private Rol role;
 
 	public AuthResponse() {
 	}
 
-	public AuthResponse(String token, String email, String nombre, String apellido, Long id, Rol role) {
+	public AuthResponse(String token, String email, String nombre, String apellido,String telefono, Long id, Rol role) {
 		this.token = token;
 		this.email = email;
 		this.nombre = nombre;
 		this.apellido = apellido;
+		this.telefono = telefono;
 		this.id = id;
 		this.role = role;
 	}
@@ -53,6 +55,14 @@ public class AuthResponse {
 
 	public void setApellido(String apellido) {
 		this.apellido = apellido;
+	}
+
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
+
+	public String getTelefono() {
+		return telefono;
 	}
 
 	public Long getId() {
@@ -96,6 +106,11 @@ public class AuthResponse {
 
 		public Builder apellido(String apellido) {
 			authResponse.setApellido(apellido);
+			return this;
+		}
+
+		public Builder telefono(String telefono) {
+			authResponse.setTelefono(telefono);
 			return this;
 		}
 

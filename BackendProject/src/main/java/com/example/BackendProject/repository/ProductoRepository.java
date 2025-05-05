@@ -34,7 +34,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     /**
      * Busca productos por categoría
      */
-    List<Producto> findByCategoriaId(Long categoriaId);
+    List<Producto> findByCategoria_Id(Long categoriaId);
     
     /**
      * Busca productos que contengan el término de búsqueda en el nombre o descripción

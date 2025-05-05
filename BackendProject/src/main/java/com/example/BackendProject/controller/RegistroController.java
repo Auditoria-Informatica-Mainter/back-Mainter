@@ -102,6 +102,35 @@ public class RegistroController {
 							.build());
 		}
 	}
+
+	@PostMapping(value = "registerClient")
+	public ResponseEntity<?> registerClient(@RequestBody UsuarioDTO userDto) {
+		try {
+			// Validar que el password no sea nulo o vacío en el registro
+			if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(ApiResponse.builder()
+								.statusCode(HttpStatus.BAD_REQUEST.value())
+								.message("La contraseña es obligatoria para el registro")
+								.build());
+			}
+			
+			AuthResponse response = userService.createUserClient(userDto);
+			return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		} catch (RuntimeException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(ApiResponse.builder()
+							.statusCode(HttpStatus.BAD_REQUEST.value())
+							.message(e.getMessage())
+							.build());
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(ApiResponse.builder()
+							.statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+							.message("Error al registrar cliente: " + e.getMessage())
+							.build());
+		}
+	}
 	
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
