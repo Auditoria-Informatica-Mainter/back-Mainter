@@ -164,4 +164,57 @@ public class DetallePedidoCompraController {
                 HttpStatus.OK
         );
     }
+    
+    @Operation(summary = "Diagnosticar datos de detalle de pedido de compra")
+    @PostMapping("/diagnostico")
+    public ResponseEntity<ApiResponse<Object>> diagnosticarDetallePedido(@RequestBody DetallePedidoCompraDTO detallePedidoDTO) {
+        // Crear un objeto que contenga todos los datos recibidos para diagnóstico
+        java.util.Map<String, Object> diagnostico = new java.util.HashMap<>();
+        diagnostico.put("dto_recibido", detallePedidoDTO);
+        diagnostico.put("campos_no_nulos", new java.util.HashMap<String, Boolean>() {{
+            put("id", detallePedidoDTO.getId() != null);
+            put("cantidad", detallePedidoDTO.getCantidad() != null);
+            put("estado", detallePedidoDTO.getEstado() != null);
+            put("importe", detallePedidoDTO.getImporte() != null);
+            put("importe_desc", detallePedidoDTO.getImporte_desc() != null);
+            put("precio", detallePedidoDTO.getPrecio() != null);
+            put("compraId", detallePedidoDTO.getCompraId() != null);
+            put("materialId", detallePedidoDTO.getMaterialId() != null);
+        }});
+        
+        // Añadir también diagnóstico de tipos
+        diagnostico.put("tipos_dato", new java.util.HashMap<String, String>() {{
+            put("id", detallePedidoDTO.getId() != null ? detallePedidoDTO.getId().getClass().getName() : "null");
+            put("cantidad", detallePedidoDTO.getCantidad() != null ? detallePedidoDTO.getCantidad().getClass().getName() : "null");
+            put("estado", detallePedidoDTO.getEstado() != null ? detallePedidoDTO.getEstado().getClass().getName() : "null");
+            put("importe", detallePedidoDTO.getImporte() != null ? detallePedidoDTO.getImporte().getClass().getName() : "null");
+            put("importe_desc", detallePedidoDTO.getImporte_desc() != null ? detallePedidoDTO.getImporte_desc().getClass().getName() : "null");
+            put("precio", detallePedidoDTO.getPrecio() != null ? detallePedidoDTO.getPrecio().getClass().getName() : "null");
+            put("compraId", detallePedidoDTO.getCompraId() != null ? detallePedidoDTO.getCompraId().getClass().getName() : "null");
+            put("materialId", detallePedidoDTO.getMaterialId() != null ? detallePedidoDTO.getMaterialId().getClass().getName() : "null");
+        }});
+        
+        return new ResponseEntity<>(
+                ApiResponse.builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Diagnóstico de los datos recibidos")
+                        .data(diagnostico)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+    
+    @Operation(summary = "Actualizar valores NULL en registros existentes")
+    @PostMapping("/actualizar-valores-null")
+    public ResponseEntity<ApiResponse<Integer>> actualizarValoresNull() {
+        int actualizados = detallePedidoCompraService.actualizarValoresNullEnRegistrosExistentes();
+        return new ResponseEntity<>(
+                ApiResponse.<Integer>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Registros actualizados: " + actualizados)
+                        .data(actualizados)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
 } 
