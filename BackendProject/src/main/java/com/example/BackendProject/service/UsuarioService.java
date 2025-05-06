@@ -169,6 +169,50 @@ public class UsuarioService {
 		}
 	}
 
+	public AuthResponse createUserClient(UsuarioDTO userDto) {
+		try {
+			// Validar si el usuario ya existe
+			if (usuarioRepository.findByEmail(userDto.getEmail()).isPresent()) {
+				throw new RuntimeException("Ya existe un usuario con el email: " + userDto.getEmail());
+			}
+			
+			Rol rol = rolRepository.findByNombre("CLIENT")
+					.orElseGet(() -> rolRepository.save(new Rol("CLIENT")));
+
+			Usuario usuario = new Usuario(
+					userDto.getNombre(),
+					userDto.getApellido(),
+					userDto.getEmail(),
+					passwordEncoder.encode(userDto.getPassword()),
+					userDto.getTelefono(),
+					true,
+					true,
+					rol
+			);
+
+			usuario.setCuentaNoExpirada(true);
+			usuario.setCuentaNoBloqueada(true);
+			usuario.setCredencialesNoExpiradas(true);
+
+			Usuario usuarioGuardado = usuarioRepository.save(usuario);
+			String token = jwtService.getToken(usuarioGuardado);
+			
+			// Devolver respuesta completa con todos los datos del usuario
+			return AuthResponse.builder()
+					.token(token)
+					.email(usuarioGuardado.getEmail())
+					.nombre(usuarioGuardado.getNombre())
+					.apellido(usuarioGuardado.getApellido())
+					.telefono(usuarioGuardado.getTelefono())
+					.id(usuarioGuardado.getId())
+					.role(usuarioGuardado.getRol())
+					.build();
+		} catch (Exception e) {
+			throw new RuntimeException("Error al crear usuario cliente: " + e.getMessage(), e);
+		}
+	}
+
+
 	@LoggableAction
 	public Usuario registrarUser(UsuarioDTO userDto) {
 		try {
@@ -214,6 +258,7 @@ public class UsuarioService {
 					.email(usuario.getEmail())
 					.nombre(usuario.getNombre())
 					.apellido(usuario.getApellido())
+					.telefono(usuario.getTelefono())
 					.id(usuario.getId())
 					.role(usuario.getRol())
 					.build();
