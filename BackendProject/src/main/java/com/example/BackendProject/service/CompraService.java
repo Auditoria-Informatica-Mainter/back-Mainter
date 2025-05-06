@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.CompraDTO;
 import com.example.BackendProject.entity.Compra;
 import com.example.BackendProject.entity.Proveedor;
@@ -61,6 +62,7 @@ public class CompraService {
      * @return la compra creada
      * @throws ResponseStatusException si no se encuentra el proveedor o el usuario
      */
+    @LoggableAction
     public Compra crearCompra(CompraDTO dto) {
         Proveedor proveedor = null;
         Usuario usuario = null;
@@ -103,6 +105,7 @@ public class CompraService {
      * @return la compra actualizada
      * @throws ResponseStatusException si no se encuentra la compra, el proveedor o el usuario
      */
+    @LoggableAction
     public Compra actualizarCompra(Long id, CompraDTO dto) {
         Compra compra = obtenerCompra(id);
         
@@ -144,6 +147,7 @@ public class CompraService {
      * @param id el ID de la compra a eliminar
      * @throws ResponseStatusException si no se encuentra la compra
      */
+    @LoggableAction
     public void eliminarCompra(Long id) {
         if (!compraRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -170,4 +174,49 @@ public class CompraService {
     public List<Compra> buscarPorProveedor(Long proveedorId) {
         return compraRepository.findByProveedorId(proveedorId);
     }
+
+    /**
+ * Busca compras realizadas en un rango de fechas
+ * @param fechaInicio la fecha de inicio del rango
+ * @param fechaFin la fecha de fin del rango
+ * @return lista de compras realizadas en ese rango
+ */
+public List<Compra> buscarComprasPorRangoFechas(Date fechaInicio, Date fechaFin) {
+    return compraRepository.findByFechaBetween(fechaInicio, fechaFin);
+}
+
+public List<Compra> buscarPorProveedorYRangoFechas(Long proveedorId, Date fechaInicio, Date fechaFin) {
+    return compraRepository.findByProveedorIdAndFechaBetween(proveedorId, fechaInicio, fechaFin);
+}
+
+/**
+ * Busca compras que incluyen un material específico en un rango de fechas
+ * @param materialId el ID del material
+ * @param fechaInicio la fecha de inicio del rango
+ * @param fechaFin la fecha de fin del rango
+ * @return lista de compras que incluyen el material en el rango de fechas
+ */
+public List<Compra> buscarComprasPorMaterialYRangoFechas(Long materialId, Date fechaInicio, Date fechaFin) {
+    // Primero obtenemos todas las compras en el rango de fechas
+    List<Compra> comprasEnRango = compraRepository.findByFechaBetween(fechaInicio, fechaFin);
+    
+    // Filtramos las compras que incluyen el material especificado
+    return comprasEnRango.stream()
+            .filter(compra -> compra.getDetalles().stream()
+                    .anyMatch(detalle -> detalle.getMaterial().getId().equals(materialId)))
+            .collect(java.util.stream.Collectors.toList());
+}
+
+/**
+ * Busca todas las compras en un rango de fechas con información de materiales
+ * @param fechaInicio la fecha de inicio del rango
+ * @param fechaFin la fecha de fin del rango
+ * @return lista de todas las compras en el rango de fechas
+ */
+public List<Compra> buscarComprasTodosMaterialesEnRangoFechas(Date fechaInicio, Date fechaFin) {
+    // Simplemente retornamos todas las compras en el rango de fechas
+    // Los detalles de cada compra ya incluyen la información de los materiales
+    return compraRepository.findByFechaBetween(fechaInicio, fechaFin);
+}
+
 } 

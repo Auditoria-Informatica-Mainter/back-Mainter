@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.MaterialResumidoDTO;
 import com.example.BackendProject.dto.ProveedorDTO;
 import com.example.BackendProject.dto.ProveedorConMaterialesDTO;
@@ -112,6 +113,7 @@ public class ProveedorService {
      * @param proveedorDTO Datos actualizados del proveedor
      * @return Optional con el proveedor actualizado o vacío si no existe
      */
+    @LoggableAction
     public Optional<ProveedorDTO> actualizarProveedor(Long id, ProveedorDTO proveedorDTO) {
         return proveedorRepository.findById(id)
                 .map(proveedor -> {
@@ -132,6 +134,7 @@ public class ProveedorService {
      * @param activo Nuevo estado
      * @return Optional con el proveedor actualizado o vacío si no existe
      */
+    @LoggableAction
     public Optional<ProveedorDTO> cambiarEstadoProveedor(Long id, Boolean activo) {
         return proveedorRepository.findById(id)
                 .map(proveedor -> {
@@ -144,6 +147,7 @@ public class ProveedorService {
      * Elimina un proveedor por su ID
      * @param id ID del proveedor a eliminar
      */
+    @LoggableAction
     public void eliminarProveedor(Long id) {
         proveedorRepository.deleteById(id);
     }
@@ -220,4 +224,4 @@ public class ProveedorService {
         
         return dto;
     }
-} 
+}

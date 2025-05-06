@@ -1,5 +1,6 @@
 package com.example.BackendProject.service;
 
+import com.example.BackendProject.config.LoggableAction;
 import com.example.BackendProject.dto.AlmacenDTO;
 import com.example.BackendProject.entity.Almacen;
 import com.example.BackendProject.repository.AlmacenRepository;
@@ -48,6 +49,7 @@ public class AlmacenService {
      * @param almacenDTO datos del nuevo almacén
      * @return el almacén creado
      */
+    @LoggableAction
     public Almacen crearAlmacen(AlmacenDTO almacenDTO) {
         Almacen almacen = new Almacen(almacenDTO.getNombre(), almacenDTO.getCapacidad());
         return almacenRepository.save(almacen);
@@ -60,6 +62,7 @@ public class AlmacenService {
      * @return el almacén actualizado
      * @throws ResponseStatusException si no se encuentra el almacén
      */
+    @LoggableAction
     public Almacen actualizarAlmacen(Long id, AlmacenDTO almacenDTO) {
         Almacen almacen = obtenerAlmacen(id);
         
@@ -74,6 +77,7 @@ public class AlmacenService {
      * @param id el ID del almacén a eliminar
      * @throws ResponseStatusException si no se encuentra el almacén
      */
+    @LoggableAction
     public void eliminarAlmacen(Long id) {
         if (!almacenRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,

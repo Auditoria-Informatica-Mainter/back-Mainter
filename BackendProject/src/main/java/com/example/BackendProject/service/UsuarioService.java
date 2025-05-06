@@ -126,7 +126,7 @@ public class UsuarioService {
 		}
 	}
 
-
+	
 	public AuthResponse createUserAdmin(UsuarioDTO userDto) {
 		try {
 			// Validar si el usuario ya existe
