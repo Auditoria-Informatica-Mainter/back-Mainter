@@ -55,7 +55,8 @@ public class ProductoService {
                 productoDTO.getStock(),
                 productoDTO.getStock_minimo(),
                 productoDTO.getTiempo(),
-                productoDTO.getImagen()
+                productoDTO.getImagen(),
+                productoDTO.getPrecioUnitario()
         );
         
         // Guardar producto

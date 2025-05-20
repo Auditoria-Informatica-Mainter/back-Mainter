@@ -38,6 +38,7 @@ public class Producto {
     private Integer stock_minimo;   // Límite para generar alertas
     private String imagen;          // URL de imagen del producto (opcional)
     private String tiempo;          // Tiempo estimado de producción
+    private Double precioUnitario;
     
       // Relación ManyToOne con Categoria (agregar esto)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,20 +56,21 @@ public class Producto {
     /**
      * Constructor con parámetros principales para crear un producto
      */
-    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String tiempo) {
+    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String tiempo, Double precioUnitario) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.stock = stock;
         this.stock_minimo = stock_minimo;
         this.tiempo = tiempo;
         this.imagen = null; // La imagen es opcional, por defecto es null
+        this.precioUnitario = precioUnitario;
     }
     
     /**
      * Constructor con parámetros principales incluyendo imagen
      */
-    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String tiempo, String imagen) {
-        this(nombre, descripcion, stock, stock_minimo, tiempo);
+    public Producto(String nombre, String descripcion, Integer stock, Integer stock_minimo, String tiempo, String imagen, Double precioUnitario) {
+        this(nombre, descripcion, stock, stock_minimo, tiempo, precioUnitario);
         this.imagen = imagen;
     }
 }

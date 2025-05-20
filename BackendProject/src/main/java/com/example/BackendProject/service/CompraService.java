@@ -93,6 +93,7 @@ public class CompraService {
                 importeDescuento,
                 proveedor,
                 usuario
+                
         );
         
         return compraRepository.save(compra);

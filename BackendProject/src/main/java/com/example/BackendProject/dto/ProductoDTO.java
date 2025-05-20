@@ -32,6 +32,9 @@ public class ProductoDTO {
     @Min(value = 0, message = "El stock mínimo no puede ser negativo")
     private Integer stock_minimo;
     
+    @Min(value = 0, message = "El stock mínimo no puede ser negativo")
+    private Double precioUnitario;
+
     private String imagen;
     private String tiempo;
     

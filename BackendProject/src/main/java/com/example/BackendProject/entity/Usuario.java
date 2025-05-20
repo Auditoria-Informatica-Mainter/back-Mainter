@@ -1,7 +1,9 @@
 package com.example.BackendProject.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -73,6 +76,10 @@ public class Usuario implements UserDetails{
     @JoinColumn(name = "rol_id", nullable = false)
     @Schema(description = "Rol asignado al usuario")
     private Rol rol;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Pedido> pedidos = new ArrayList<>();
 
 
     public Usuario(String nombre, String apellido, String email, String password, String telefono, boolean estado, boolean disponible, Rol rol) {
