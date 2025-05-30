@@ -2,7 +2,9 @@ package com.example.BackendProject.controller;
 
 import com.example.BackendProject.dto.PreProductoDTO;
 import com.example.BackendProject.entity.Pre_producto;
+import com.example.BackendProject.entity.PreMaquinaria;
 import com.example.BackendProject.service.PreProductoService;
+import com.example.BackendProject.service.PreMaquinariaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/preproductos")
@@ -23,6 +26,9 @@ public class PreProductoController {
     
     @Autowired
     private PreProductoService preProductoService;
+
+    @Autowired
+    private PreMaquinariaService preMaquinariaService;
     
     @PostMapping
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('PRODUCCION')")
@@ -103,6 +109,82 @@ public class PreProductoController {
         try {
             preProductoService.eliminarPreProducto(id);
             return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // NUEVOS ENDPOINTS INTEGRADOS CON PRE-MAQUINARIAS
+
+    // Obtener pre-producto con sus planificaciones de maquinarias
+    @GetMapping("/{id}/con-planificaciones")
+    @Operation(
+            summary = "Obtener pre-producto con planificaciones",
+            description = "Retorna un pre-producto con todas sus planificaciones de maquinarias"
+    )
+    public ResponseEntity<Map<String, Object>> obtenerPreProductoConPlanificaciones(@PathVariable Long id) {
+        try {
+            Map<String, Object> resumen = preMaquinariaService.getResumenPlanificacion(id);
+            return ResponseEntity.ok(resumen);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Obtener planificaciones de maquinarias de un pre-producto
+    @GetMapping("/{id}/planificaciones")
+    @Operation(
+            summary = "Obtener planificaciones de maquinarias",
+            description = "Retorna todas las planificaciones de maquinarias para un pre-producto"
+    )
+    public ResponseEntity<List<PreMaquinaria>> obtenerPlanificacionesMaquinarias(@PathVariable Long id) {
+        List<PreMaquinaria> planificaciones = preMaquinariaService.getPreMaquinariasPorProducto(id);
+        return ResponseEntity.ok(planificaciones);
+    }
+
+    // Calcular tiempo total de producción estimado
+    @GetMapping("/{id}/tiempo-produccion")
+    @Operation(
+            summary = "Calcular tiempo total de producción",
+            description = "Calcula el tiempo total estimado para producir el pre-producto"
+    )
+    public ResponseEntity<Map<String, Object>> calcularTiempoProduccion(@PathVariable Long id) {
+        try {
+            Pre_producto preProducto = preProductoService.obtenerPreProductoPorId(id);
+            Integer tiempoMaquinarias = preMaquinariaService.calcularTiempoTotalEstimado(id);
+            
+            return ResponseEntity.ok(Map.of(
+                "preProducto", preProducto.getNombre(),
+                "tiempoEstimadoProducto", preProducto.getTiempo(),
+                "tiempoEstimadoMaquinarias", tiempoMaquinarias,
+                "totalMaquinariasRequeridas", preMaquinariaService.getPreMaquinariasPorProducto(id).size()
+            ));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Verificar si el pre-producto tiene planificaciones completas
+    @GetMapping("/{id}/planificacion-completa")
+    @Operation(
+            summary = "Verificar planificación completa",
+            description = "Verifica si el pre-producto tiene todas sus planificaciones de maquinarias"
+    )
+    public ResponseEntity<Map<String, Object>> verificarPlanificacionCompleta(@PathVariable Long id) {
+        try {
+            Pre_producto preProducto = preProductoService.obtenerPreProductoPorId(id);
+            List<PreMaquinaria> planificaciones = preMaquinariaService.getPreMaquinariasPorProducto(id);
+            
+            boolean tienePlanificaciones = !planificaciones.isEmpty();
+            Integer tiempoTotal = preMaquinariaService.calcularTiempoTotalEstimado(id);
+            
+            return ResponseEntity.ok(Map.of(
+                "preProducto", preProducto.getNombre(),
+                "tienePlanificaciones", tienePlanificaciones,
+                "totalMaquinarias", planificaciones.size(),
+                "tiempoTotalEstimado", tiempoTotal,
+                "planificacionCompleta", tienePlanificaciones && tiempoTotal > 0
+            ));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
