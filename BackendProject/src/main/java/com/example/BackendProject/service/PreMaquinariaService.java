@@ -82,8 +82,20 @@ public class PreMaquinariaService {
 
     // Calcular tiempo total estimado para un producto
     public Integer calcularTiempoTotalEstimado(Long preProductoId) {
-        return preMaquinariaRepository.calcularTiempoTotalEstimado(preProductoId).orElse(0);
+        List<PreMaquinaria> planificaciones = preMaquinariaRepository.findByPreProductoId(preProductoId);
+
+        return planificaciones.stream()
+                .mapToInt(pm -> {
+                    try {
+                        String soloNumeros = pm.getTiempoEstimado().replaceAll("[^0-9]", "");
+                        return soloNumeros.isEmpty() ? 0 : Integer.parseInt(soloNumeros);
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
+                .sum();
     }
+
 
     // Obtener resumen de planificación para un producto
     public Map<String, Object> getResumenPlanificacion(Long preProductoId) {

@@ -37,7 +37,8 @@ public interface PreMaquinariaRepository extends JpaRepository<PreMaquinaria, Lo
     // Calcular tiempo total estimado para un producto
     @Query("SELECT SUM(CAST(pm.tiempoEstimado AS integer)) FROM PreMaquinaria pm WHERE pm.preProducto.id = :preProductoId")
     Optional<Integer> calcularTiempoTotalEstimado(@Param("preProductoId") Long preProductoId);
-    
+    //List<PreMaquinaria> findByPreProductoId(Long preProductoId);
+
     // Obtener maquinarias más utilizadas en planificaciones
     @Query("SELECT pm.maquinaria, COUNT(pm.maquinaria) as uso_count FROM PreMaquinaria pm GROUP BY pm.maquinaria ORDER BY uso_count DESC")
     List<Object[]> findMaquinariasMasUtilizadas();
