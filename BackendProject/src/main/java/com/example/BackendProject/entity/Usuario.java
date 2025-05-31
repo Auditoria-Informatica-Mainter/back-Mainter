@@ -81,6 +81,13 @@ public class Usuario implements UserDetails{
     @JsonManagedReference
     private List<Pedido> pedidos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnore
+    private List<Orden_Producto> ordenesProducto = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnore
+    private List<Orden_PreProducto> ordenesPreProducto = new ArrayList<>();
 
     public Usuario(String nombre, String apellido, String email, String password, String telefono, boolean estado, boolean disponible, Rol rol) {
         this.nombre = nombre;

@@ -53,6 +53,10 @@ public class Producto {
     @JsonIgnore
     private List<Plano> planos = new ArrayList<>();
     
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Orden_Producto> ordenesProducto = new ArrayList<>();
+    
     /**
      * Constructor con parámetros principales para crear un producto
      */

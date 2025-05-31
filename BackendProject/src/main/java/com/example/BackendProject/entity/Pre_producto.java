@@ -36,6 +36,10 @@ public class Pre_producto {
     @JsonIgnore
     private List<PreMaquinaria> preMaquinarias = new ArrayList<>();
     
+    @OneToMany(mappedBy = "preProducto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Orden_PreProducto> ordenesPreProducto = new ArrayList<>();
+    
     public Pre_producto(String nombre, String descripcion, Integer stock, String tiempo) {
         this.nombre = nombre;
         this.descripcion = descripcion;
