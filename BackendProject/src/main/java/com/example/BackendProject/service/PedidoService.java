@@ -79,14 +79,14 @@ public class PedidoService {
             
             pedidoExistente.setMetodo_pago(metodoPago);
         }
-        System.out.println("44444444444444444444444444444444444444444444444444444444444444444444444444444444");  
+        
         if (pedidoDTO.getUsuario_id() != null) {
     
             Usuario usuario = usuarioRepository.findById(pedidoDTO.getUsuario_id())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
             pedidoExistente.setUsuario(usuario);
         }
-        System.out.println("55555555555555555555555555555555555555555555555555555555555555555555555555  ");   
+        
         return pedidoRepository.save(pedidoExistente);
         
     }

@@ -1,9 +1,12 @@
 package com.example.BackendProject.controller;
 
 import com.example.BackendProject.dto.PedidoDTO;
+import com.example.BackendProject.dto.ProductoPedidoDTO;
 import com.example.BackendProject.entity.Pedido;
+import com.example.BackendProject.entity.Detalle_pedido;
 import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.PedidoService;
+import com.example.BackendProject.service.DetallePedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +25,7 @@ import java.util.List;
 public class PedidoController {
 
     private final PedidoService pedidoService;
+    private final DetallePedidoService detallePedidoService;
 
     @Operation(summary = "Obtener todos los pedidos")
     @GetMapping
@@ -147,5 +151,33 @@ public class PedidoController {
                         .build(),
                 HttpStatus.OK
         );
+    }    @Operation(summary = "Obtener productos de un pedido específico", 
+               description = "Obtiene todos los productos asociados a un pedido con información detallada del producto y categoría")
+    @GetMapping("/{id}/productos")
+    public ResponseEntity<ApiResponse<List<ProductoPedidoDTO>>> obtenerProductosPorPedido(@PathVariable Long id) {
+        try {
+            // Verificar que el pedido existe
+            pedidoService.obtenerPedido(id);
+            
+            // Obtener los productos con información detallada
+            List<ProductoPedidoDTO> productosDetallados = detallePedidoService.obtenerProductosDetalladosPorPedido(id);
+            
+            return new ResponseEntity<>(
+                    ApiResponse.<List<ProductoPedidoDTO>>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Productos del pedido ID: " + id)
+                            .data(productosDetallados)
+                            .build(),
+                    HttpStatus.OK
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<List<ProductoPedidoDTO>>builder()
+                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message("Pedido no encontrado con ID: " + id)
+                            .build(),
+                    HttpStatus.NOT_FOUND
+            );
+        }
     }
 }

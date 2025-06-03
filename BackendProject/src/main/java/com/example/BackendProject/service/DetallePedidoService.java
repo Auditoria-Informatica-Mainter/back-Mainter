@@ -1,6 +1,7 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.DetallePedidoDTO;
+import com.example.BackendProject.dto.ProductoPedidoDTO;
 import com.example.BackendProject.entity.Detalle_pedido;
 import com.example.BackendProject.entity.Pedido;
 import com.example.BackendProject.entity.Producto;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DetallePedidoService {
@@ -172,6 +174,51 @@ public class DetallePedidoService {
 
     public List<Detalle_pedido> obtenerPorProducto(Long productoId) {
         return detallePedidoRepository.findByProductoId(productoId);
+    }
+
+    /**
+     * Convierte los detalles de pedido a DTOs con información completa del producto
+     * @param pedidoId ID del pedido
+     * @return Lista de ProductoPedidoDTO con información detallada
+     */
+    public List<ProductoPedidoDTO> obtenerProductosDetalladosPorPedido(Long pedidoId) {
+        List<Detalle_pedido> detallesPedido = detallePedidoRepository.findByPedidoId(pedidoId);
+        
+        return detallesPedido.stream()
+                .map(this::convertirAProductoPedidoDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Convierte un Detalle_pedido a ProductoPedidoDTO
+     * @param detalle el detalle del pedido
+     * @return ProductoPedidoDTO con información completa
+     */
+    private ProductoPedidoDTO convertirAProductoPedidoDTO(Detalle_pedido detalle) {
+        Producto producto = detalle.getProducto();
+        
+        return ProductoPedidoDTO.builder()
+                // Información del detalle del pedido
+                .detalleId(detalle.getId())
+                .cantidad(detalle.getCantidad())
+                .precioUnitario(detalle.getPrecioUnitario())
+                .importe_Total(detalle.getImporte_Total())
+                .importe_Total_Desc(detalle.getImporte_Total_Desc())
+                .estado(detalle.getEstado())
+                
+                // Información del producto
+                .productoId(producto.getId())
+                .nombreProducto(producto.getNombre())
+                .descripcionProducto(producto.getDescripcion())
+                .imagenProducto(producto.getImagen())
+                .tiempoProduccion(producto.getTiempo())
+                .stockDisponible(producto.getStock())
+                .stockMinimo(producto.getStock_minimo())
+                
+                // Información de la categoría (si existe)
+                .categoriaId(producto.getCategoria() != null ? producto.getCategoria().getId() : null)
+                .nombreCategoria(producto.getCategoria() != null ? producto.getCategoria().getNombre() : null)
+                .build();
     }
 
     

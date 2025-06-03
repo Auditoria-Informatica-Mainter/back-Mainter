@@ -1,12 +1,8 @@
 package com.example.BackendProject.dto;
 
 import java.util.Date;
-import java.util.List;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
