@@ -139,6 +139,30 @@ public class PedidoController {
         }
     }
 
+    @Operation(summary = "Obtener pedidos por usuario")
+@GetMapping("/usuario/{usuarioId}")
+public ResponseEntity<ApiResponse<List<Pedido>>> obtenerPedidosPorUsuario(@PathVariable Long usuarioId) {
+    try {
+        List<Pedido> pedidos = pedidoService.buscarPorUsuario(usuarioId);
+        return new ResponseEntity<>(
+                ApiResponse.<List<Pedido>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Pedidos del usuario ID: " + usuarioId)
+                        .data(pedidos)
+                        .build(),
+                HttpStatus.OK
+        );
+    } catch (ResponseStatusException e) {
+        return new ResponseEntity<>(
+                ApiResponse.<List<Pedido>>builder()
+                        .statusCode(HttpStatus.NOT_FOUND.value())
+                        .message(e.getReason())
+                        .build(),
+                HttpStatus.NOT_FOUND
+        );
+    }
+}
+
     @Operation(summary = "Obtener pedidos por estado")
     @GetMapping("/estado/{estado}")
     public ResponseEntity<ApiResponse<List<Pedido>>> obtenerPedidosPorEstado(@PathVariable Boolean estado) {

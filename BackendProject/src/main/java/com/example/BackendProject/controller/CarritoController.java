@@ -6,16 +6,19 @@ import com.example.BackendProject.response.ApiResponse;
 import com.example.BackendProject.service.CarritoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/carrito")
 @CrossOrigin(origins = "*")
+@Validated
 @Tag(name = "Carrito", description = "API para gestión del carrito de compras")
 public class CarritoController {
     
