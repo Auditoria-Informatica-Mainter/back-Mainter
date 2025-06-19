@@ -29,10 +29,6 @@ public class DetalleDevolucionService {
         return detalleDevolucionRepository.findAll();
     }
 
-    public List<Detalle_Devolucion> listarDetallesPorDevolucion(Long devolucionId) {
-        return detalleDevolucionRepository.findByDevolucion_Id(devolucionId);
-    }
-
     public List<Detalle_Devolucion> listarDetallesPorProducto(Long productoId) {
         return detalleDevolucionRepository.findByProducto_Id(productoId);
     }
@@ -69,27 +65,14 @@ public class DetalleDevolucionService {
         return detalleDevolucionRepository.save(detalle);
     }
 
-    public Detalle_Devolucion actualizarDetalle(Long detalleId, DetalleDevolucionDTO dto) {
-        Detalle_Devolucion detalle = obtenerDetalle(detalleId);
+    public void eliminarDetalle(Long devolucionId, Long detalleId) {
+        Detalle_Devolucion detalle = detalleDevolucionRepository.findById(detalleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Detalle de devolución no encontrado con ID: " + detalleId));
 
-        if (dto.getCantidad() != null) {
-            detalle.setCantidad(dto.getCantidad());
-            // Recalcular importe si la cantidad cambia y el precio está disponible
-            if(detalle.getProducto() != null && detalle.getProducto().getPrecioUnitario() != null){
-                detalle.setImporte_Total(detalle.getProducto().getPrecioUnitario() * dto.getCantidad());
-            }
-        }
-        if (dto.getMotivo_detalle() != null) {
-            detalle.setMotivo_detalle(dto.getMotivo_detalle());
+        if (!detalle.getDevolucion().getId().equals(devolucionId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El detalle con ID " + detalleId + " no pertenece a la devolución con ID " + devolucionId);
         }
 
-        return detalleDevolucionRepository.save(detalle);
-    }
-
-    public void eliminarDetalle(Long id) {
-        if (!detalleDevolucionRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se puede eliminar. Detalle de devolución no encontrado con ID: " + id);
-        }
-        detalleDevolucionRepository.deleteById(id);
+        detalleDevolucionRepository.deleteById(detalleId);
     }
 }

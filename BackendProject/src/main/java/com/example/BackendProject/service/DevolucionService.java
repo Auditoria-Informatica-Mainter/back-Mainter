@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -101,24 +104,47 @@ public class DevolucionService {
     public Devolucion actualizarDevolucion(Long id, DevolucionDTO devolucionDTO) {
         Devolucion devolucion = obtenerDevolucion(id);
 
-        // Actualizar campos simples
+        // 1. Actualizar campos simples de la devolución
         if (devolucionDTO.getFecha() != null) devolucion.setFecha(devolucionDTO.getFecha());
         if (devolucionDTO.getMotivo() != null) devolucion.setMotivo(devolucionDTO.getMotivo());
         if (devolucionDTO.getDescripcion() != null) devolucion.setDescripcion(devolucionDTO.getDescripcion());
         if (devolucionDTO.getImporte_total() != null) devolucion.setImporte_total(devolucionDTO.getImporte_total());
         if (devolucionDTO.getEstado() != null) devolucion.setEstado(devolucionDTO.getEstado());
 
-        // Actualizar relaciones
-        if (devolucionDTO.getUsuario_id() != null) {
-            Usuario usuario = usuarioRepository.findById(devolucionDTO.getUsuario_id())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
-            devolucion.setUsuario(usuario);
-        }
+        // 2. Sincronizar la lista de detalles
+        if (devolucionDTO.getDetalles() != null) {
+            // Mapa de detalles existentes para fácil acceso
+            Map<Long, Detalle_Devolucion> detallesExistentesMap = devolucion.getDetalles().stream()
+                    .collect(Collectors.toMap(Detalle_Devolucion::getId, Function.identity()));
 
-        if (devolucionDTO.getPedido_id() != null) {
-            Pedido pedido = pedidoRepository.findById(devolucionDTO.getPedido_id())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no encontrado"));
-            devolucion.setPedido(pedido);
+            // Lista para los detalles actualizados
+            List<Detalle_Devolucion> detallesActualizados = devolucionDTO.getDetalles().stream().map(detalleDTO -> {
+                Detalle_Devolucion detalle;
+                if (detalleDTO.getId() != null) {
+                    // Es un detalle existente, lo actualizamos
+                    detalle = detallesExistentesMap.get(detalleDTO.getId());
+                    if (detalle == null) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El detalle con ID " + detalleDTO.getId() + " no pertenece a esta devolución.");
+                    }
+                } else {
+                    // Es un detalle nuevo, lo creamos
+                    detalle = new Detalle_Devolucion();
+                    detalle.setDevolucion(devolucion); // Asociar con la devolución padre
+                }
+
+                // Actualizar propiedades del detalle
+                detalle.setCantidad(detalleDTO.getCantidad());
+                detalle.setMotivo_detalle(detalleDTO.getMotivo_detalle());
+                Producto producto = productoRepository.findById(detalleDTO.getProductoId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto con ID " + detalleDTO.getProductoId() + " no encontrado"));
+                detalle.setProducto(producto);
+
+                return detalle;
+            }).collect(Collectors.toList());
+
+            // Reemplazamos la lista de detalles de la devolución con la nueva lista sincronizada
+            devolucion.getDetalles().clear();
+            devolucion.getDetalles().addAll(detallesActualizados);
         }
 
         return devolucionRepository.save(devolucion);
@@ -148,8 +174,8 @@ public class DevolucionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La devolución ya ha sido procesada");
         }
         
-        // Obtener todos los detalles de la devolución
-        List<Detalle_Devolucion> detalles = detalleDevolucionService.listarDetallesPorDevolucion(devolucionId);
+        // Los detalles ya están cargados en la entidad gracias a la relación @OneToMany
+        List<Detalle_Devolucion> detalles = devolucion.getDetalles();
         
         // Procesar cada detalle
         for (Detalle_Devolucion detalle : detalles) {
