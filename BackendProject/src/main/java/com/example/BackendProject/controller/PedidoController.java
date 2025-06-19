@@ -1,6 +1,7 @@
 package com.example.BackendProject.controller;
 
 import com.example.BackendProject.dto.PedidoDTO;
+import com.example.BackendProject.dto.PedidoResponseDTO;
 import com.example.BackendProject.dto.ProductoPedidoDTO;
 import com.example.BackendProject.entity.Pedido;
 import com.example.BackendProject.entity.Detalle_pedido;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
@@ -25,14 +27,12 @@ import java.util.List;
 public class PedidoController {
 
     private final PedidoService pedidoService;
-    private final DetallePedidoService detallePedidoService;
-
-    @Operation(summary = "Obtener todos los pedidos")
+    private final DetallePedidoService detallePedidoService;    @Operation(summary = "Obtener todos los pedidos")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Pedido>>> obtenerTodosLosPedidos() {
-        List<Pedido> pedidos = pedidoService.listarPedidos();
+    public ResponseEntity<ApiResponse<List<PedidoResponseDTO>>> obtenerTodosLosPedidos() {
+        List<PedidoResponseDTO> pedidos = pedidoService.listarPedidosCompletos();
         return new ResponseEntity<>(
-                ApiResponse.<List<Pedido>>builder()
+                ApiResponse.<List<PedidoResponseDTO>>builder()
                         .statusCode(HttpStatus.OK.value())
                         .message("Lista de pedidos")
                         .data(pedidos)
@@ -41,13 +41,12 @@ public class PedidoController {
         );
     }
 
-    @Operation(summary = "Obtener un pedido por ID")
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Pedido>> obtenerPedidoPorId(@PathVariable Long id) {
+    @Operation(summary = "Obtener un pedido por ID")    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PedidoResponseDTO>> obtenerPedidoPorId(@PathVariable Long id) {
         try {
-            Pedido pedido = pedidoService.obtenerPedido(id);
+            PedidoResponseDTO pedido = pedidoService.obtenerPedidoCompleto(id);
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<PedidoResponseDTO>builder()
                             .statusCode(HttpStatus.OK.value())
                             .message("Pedido encontrado")
                             .data(pedido)
@@ -56,7 +55,7 @@ public class PedidoController {
             );
         } catch (ResponseStatusException e) {
             return new ResponseEntity<>(
-                    ApiResponse.<Pedido>builder()
+                    ApiResponse.<PedidoResponseDTO>builder()
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .message("Pedido no encontrado con ID: " + id)
                             .build(),
@@ -177,6 +176,58 @@ public class PedidoController {
                             .message("Pedido no encontrado con ID: " + id)
                             .build(),
                     HttpStatus.NOT_FOUND
+            );
+        }
+    }    @Operation(summary = "Validar/Aprobar un pedido")
+    @PutMapping("/{id}/validar")
+    public ResponseEntity<ApiResponse<PedidoResponseDTO>> validarPedido(@PathVariable Long id, @RequestBody Map<String, Boolean> request) {
+        try {
+            Boolean estado = request.get("estado");
+            if (estado == null) {
+                return ResponseEntity.badRequest().body(
+                    ApiResponse.<PedidoResponseDTO>builder()
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message("El campo 'estado' es requerido")
+                            .build()
+                );
+            }
+            
+            PedidoResponseDTO pedido = pedidoService.cambiarEstadoPedidoCompleto(id, estado);
+            return ResponseEntity.ok(
+                    ApiResponse.<PedidoResponseDTO>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Pedido " + (estado ? "validado" : "invalidado") + " exitosamente")
+                            .data(pedido)
+                            .build()
+            );
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ApiResponse.<PedidoResponseDTO>builder()
+                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message(e.getReason())
+                            .build()
+            );
+        }
+    }
+
+    @Operation(summary = "Cambiar estado de un pedido con query parameter")
+    @PostMapping("/{id}/actualizar-estado")
+    public ResponseEntity<ApiResponse<Pedido>> actualizarEstadoPedido(@PathVariable Long id, @RequestParam("estado") Boolean estado) {
+        try {
+            Pedido pedido = pedidoService.cambiarEstadoPedido(id, estado);
+            return ResponseEntity.ok(
+                    ApiResponse.<Pedido>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Estado del pedido actualizado exitosamente")
+                            .data(pedido)
+                            .build()
+            );
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    ApiResponse.<Pedido>builder()
+                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message(e.getReason())
+                            .build()
             );
         }
     }

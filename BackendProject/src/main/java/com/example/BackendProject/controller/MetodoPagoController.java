@@ -148,5 +148,26 @@ public class MetodoPagoController {
                             .build()
             );
         }
+    }    @Operation(summary = "Verificar si un método de pago existe")
+    @GetMapping("/verificar/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> verificarMetodoPago(@PathVariable Long id) {
+        try {
+            metodoPagoService.obtenerMetodoPago(id);
+            return ResponseEntity.ok(
+                    ApiResponse.<Boolean>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Método de pago existe")
+                            .data(true)
+                            .build()
+            );
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.ok(
+                    ApiResponse.<Boolean>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Método de pago no existe")
+                            .data(false)
+                            .build()
+            );
+        }
     }
 }
