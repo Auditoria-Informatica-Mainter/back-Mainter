@@ -32,10 +32,11 @@ import java.util.Map;
 public class StripeService {
 
     @Value("${stripe.secret.key}")
-    private String stripeSecretKey;
-
-    @Value("${stripe.publishable.key}")
+    private String stripeSecretKey;    @Value("${stripe.publishable.key}")
     private String stripePublishableKey;
+
+    @Value("${frontend.url:http://localhost:3000}")
+    private String frontendUrl;
 
     @Autowired
     private StripePaymentRepository stripePaymentRepository;
@@ -298,22 +299,33 @@ public class StripeService {
         
         lineItem.put("price_data", priceData);
         lineItem.put("quantity", 1);
-        lineItems.add(lineItem);
+        lineItems.add(lineItem);        params.put("line_items", lineItems);
         
-        params.put("line_items", lineItems);
+        // ✅ SOLUCIÓN: URLs dinámicas que funcionan en cualquier puerto/dominio
+        // Usando la URL base del request del frontend
+        String frontendUrl = request.getReturnUrl() != null ? request.getReturnUrl() : "http://localhost:4200";
         
-        // Configurar URLs de éxito y cancelación
-        String baseUrl = request.getReturnUrl() != null ? request.getReturnUrl() : "http://localhost:4200";
-        params.put("success_url", baseUrl + "/payment/success?session_id={CHECKOUT_SESSION_ID}");
-        params.put("cancel_url", baseUrl + "/payment/cancel");
+        // URLs que redirigen de vuelta al frontend con parámetros
+        String successUrl = frontendUrl + "/pedidos?payment=success&session_id={CHECKOUT_SESSION_ID}&order_id=" + request.getOrderId();
+        String cancelUrl = frontendUrl + "/pedidos?payment=cancelled&order_id=" + request.getOrderId();
         
-        // Configurar metadata
+        params.put("success_url", successUrl);
+        params.put("cancel_url", cancelUrl);
+        
+        // Configurar metadata para tracking
         Map<String, String> metadata = new HashMap<>();
         metadata.put("orderId", request.getOrderId());
         if (request.getCustomerEmail() != null) {
             metadata.put("customerEmail", request.getCustomerEmail());
         }
         params.put("metadata", metadata);
+        
+        System.out.println("=== STRIPE CHECKOUT SESSION (URLs DINÁMICAS) ===");
+        System.out.println("Order ID: " + request.getOrderId());
+        System.out.println("Amount: " + (request.getAmount() * 100) + " centavos");
+        System.out.println("Success URL: " + successUrl);
+        System.out.println("Cancel URL: " + cancelUrl);
+        System.out.println("Frontend URL detectada: " + frontendUrl);
         
         // Configurar email del cliente si se proporciona
         if (StringUtils.hasText(request.getCustomerEmail())) {
@@ -333,4 +345,141 @@ public class StripeService {
         
         return response;
     }
-}
+    
+    // ============================================
+    // MÉTODOS DE VALIDACIÓN PARA EL FRONTEND
+    // ============================================
+    
+    @Autowired
+    private PedidoService pedidoService;
+    
+    /**
+     * Verifica el estado de un pago usando session ID de Stripe
+     * Este método es para que el frontend pueda verificar si un pago fue exitoso
+     */
+    public Map<String, Object> verifyPaymentBySession(String sessionId) throws StripeException {
+        System.out.println("🔍 Verificando estado de pago para session: " + sessionId);
+        
+        // Obtener la sesión de Stripe
+        com.stripe.model.checkout.Session session = com.stripe.model.checkout.Session.retrieve(sessionId);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("session_id", sessionId);
+        response.put("payment_status", session.getPaymentStatus());
+        response.put("amount_total", session.getAmountTotal());
+        response.put("currency", session.getCurrency());
+        response.put("is_paid", "paid".equals(session.getPaymentStatus()));
+        
+        // Obtener metadata del pedido
+        if (session.getMetadata() != null) {
+            response.put("order_id", session.getMetadata().get("orderId"));
+            response.put("customer_email", session.getMetadata().get("customerEmail"));
+        }
+        
+        System.out.println("📊 Payment Status: " + session.getPaymentStatus());
+        System.out.println("💰 Amount: " + session.getAmountTotal() + " centavos");
+        System.out.println("🆔 Order ID: " + session.getMetadata().get("orderId"));
+        
+        return response;
+    }
+    
+    /**
+     * Valida un pago exitoso y actualiza el estado del pedido
+     * Este es el método principal que el frontend debe llamar después de un pago exitoso
+     */
+    public Map<String, Object> validateAndUpdateOrder(String sessionId, String orderId) throws StripeException {
+        System.out.println("✅ Validando pago y actualizando pedido");
+        System.out.println("🎫 Session ID: " + sessionId);
+        System.out.println("📋 Order ID: " + orderId);
+        
+        // Verificar el pago con Stripe
+        com.stripe.model.checkout.Session session = com.stripe.model.checkout.Session.retrieve(sessionId);
+        
+        if (!"paid".equals(session.getPaymentStatus())) {
+            throw new IllegalStateException("El pago no está confirmado en Stripe. Estado: " + session.getPaymentStatus());
+        }
+        
+        // Obtener pedido ID de metadata si no se proporcionó
+        String actualOrderId = orderId;
+        if (actualOrderId == null && session.getMetadata() != null) {
+            actualOrderId = session.getMetadata().get("orderId");
+        }
+        
+        if (actualOrderId == null) {
+            throw new IllegalArgumentException("No se pudo obtener el ID del pedido");
+        }
+        
+        try {
+            // Actualizar el estado del pedido a pagado (true)
+            System.out.println("🔄 Actualizando pedido #" + actualOrderId + " a estado PAGADO");
+            pedidoService.cambiarEstadoPedido(Long.parseLong(actualOrderId), true);
+            System.out.println("✅ Pedido actualizado exitosamente");
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error actualizando pedido: " + e.getMessage());
+            throw new RuntimeException("Error actualizando estado del pedido", e);
+        }
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "Pago validado y pedido actualizado exitosamente");
+        response.put("order_id", actualOrderId);
+        response.put("payment_amount", session.getAmountTotal() / 100.0); // Convertir de centavos
+        response.put("session_id", sessionId);
+        response.put("payment_status", session.getPaymentStatus());
+        response.put("currency", session.getCurrency());
+        response.put("updated_at", System.currentTimeMillis());
+        
+        return response;
+    }
+    
+    /**
+     * Obtiene el estado completo de una sesión de Stripe
+     * Útil para debugging y obtener información detallada
+     */
+    public Map<String, Object> getSessionStatus(String sessionId) throws StripeException {
+        System.out.println("📋 Obteniendo estado completo de sesión: " + sessionId);
+        
+        com.stripe.model.checkout.Session session = com.stripe.model.checkout.Session.retrieve(sessionId);
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        // Información básica de la sesión
+        response.put("success", true);
+        response.put("session_id", sessionId);
+        response.put("payment_status", session.getPaymentStatus());
+        response.put("status", session.getStatus());
+        response.put("amount_total", session.getAmountTotal());
+        response.put("amount_subtotal", session.getAmountSubtotal());
+        response.put("currency", session.getCurrency());
+        response.put("customer_email", session.getCustomerEmail());
+        response.put("mode", session.getMode());
+        response.put("url", session.getUrl());
+        
+        // URLs de redirección
+        response.put("success_url", session.getSuccessUrl());
+        response.put("cancel_url", session.getCancelUrl());
+        
+        // Metadata
+        if (session.getMetadata() != null) {
+            response.put("metadata", session.getMetadata());
+            response.put("order_id", session.getMetadata().get("orderId"));
+        }
+        
+        // Información del cliente
+        if (session.getCustomerDetails() != null) {
+            Map<String, Object> customerDetails = new HashMap<>();
+            customerDetails.put("email", session.getCustomerDetails().getEmail());
+            customerDetails.put("name", session.getCustomerDetails().getName());
+            response.put("customer_details", customerDetails);
+        }
+        
+        // Estados útiles para el frontend
+        response.put("is_paid", "paid".equals(session.getPaymentStatus()));
+        response.put("is_complete", "complete".equals(session.getStatus()));
+        response.put("expires_at", session.getExpiresAt());
+        response.put("created", session.getCreated());
+        
+        return response;
+    }}

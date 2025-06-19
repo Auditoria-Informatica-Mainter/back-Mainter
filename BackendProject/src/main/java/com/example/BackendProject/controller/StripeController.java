@@ -69,6 +69,98 @@ public class StripeController {
     }
 
     /**
+     * Verificar el estado de un pago usando session ID de Stripe
+     */
+    @Operation(summary = "Verificar estado de pago por session ID")
+    @GetMapping("/verify-payment/{sessionId}")
+    public ResponseEntity<?> verifyPayment(@PathVariable String sessionId) {
+        try {
+            Map<String, Object> paymentStatus = stripeService.verifyPaymentBySession(sessionId);
+            return ResponseEntity.ok(paymentStatus);
+            
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                .body(createErrorResponse("Stripe error: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("Error verifying payment: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Confirmar pago exitoso y actualizar pedido
+     */
+    @Operation(summary = "Confirmar pago y actualizar pedido")
+    @PostMapping("/confirm-payment")
+    public ResponseEntity<?> confirmPayment(@RequestBody Map<String, String> request) {
+        try {
+            String sessionId = request.get("sessionId");
+            String orderId = request.get("orderId");
+            
+            if (sessionId == null || sessionId.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("Session ID is required"));
+            }
+            
+            Map<String, Object> confirmationResult = stripeService.validateAndUpdateOrder(sessionId, orderId);
+            return ResponseEntity.ok(confirmationResult);
+            
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                .body(createErrorResponse("Stripe error: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("Error confirming payment: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Validar pago exitoso y actualizar estado del pedido
+     */
+    @Operation(summary = "Validar pago y actualizar pedido")
+    @PostMapping("/validate-payment")
+    public ResponseEntity<?> validatePayment(@RequestBody Map<String, String> request) {
+        try {
+            String sessionId = request.get("sessionId");
+            String orderId = request.get("orderId");
+            
+            if (sessionId == null || sessionId.trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(createErrorResponse("Session ID is required"));
+            }
+            
+            Map<String, Object> validationResult = stripeService.validateAndUpdateOrder(sessionId, orderId);
+            return ResponseEntity.ok(validationResult);
+            
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                .body(createErrorResponse("Stripe error: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("Error validating payment: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Obtener estado completo de la sesión de Stripe
+     */
+    @Operation(summary = "Obtener estado de sesión de Stripe")
+    @GetMapping("/session-status/{sessionId}")
+    public ResponseEntity<?> getSessionStatus(@PathVariable String sessionId) {
+        try {
+            Map<String, Object> sessionStatus = stripeService.getSessionStatus(sessionId);
+            return ResponseEntity.ok(sessionStatus);
+            
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
+                .body(createErrorResponse("Stripe error: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(createErrorResponse("Error getting session status: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Método auxiliar para crear respuestas de error consistentes
      */
     private Map<String, Object> createErrorResponse(String message) {
