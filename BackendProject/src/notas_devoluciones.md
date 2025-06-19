@@ -302,10 +302,10 @@ classDiagram
     Devolucion "1" -- "0..*" Detalle_Devolucion : contiene
     DevolucionDTO "1" -- "0..*" DetalleDevolucionDTO : contiene
 
-    note for Devolucion, "Entidad de BD"
-    note for Detalle_Devolucion, "Entidad de BD"
-    note for DevolucionDTO, "DTO para API"
-    note for DetalleDevolucionDTO, "DTO para API"
+    note for Devolucion "Entidad de BD"
+    note for Detalle_Devolucion "Entidad de BD"
+    note for DevolucionDTO "DTO para API"
+    note for DetalleDevolucionDTO "DTO para API"
 ```
 
 ---
