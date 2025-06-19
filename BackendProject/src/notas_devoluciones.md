@@ -41,94 +41,133 @@ Este controlador ahora gestiona tanto las devoluciones como sus detalles, tratan
 
 ---
 
-## 3. Flujos de Operaciones
+## 3. Flujos de Operaciones con Ejemplos JSON
 
 ### 3.1. Crear una Devolución Completa
 
-Un cliente reporta una silla rota y una mesa del color incorrecto en el mismo envío.
+**Contexto:** Un cliente de "El Buen Mueble" recibe su pedido y encuentra una silla con una pata rota y una mesa del color equivocado. Decide devolver ambos artículos en un solo proceso.
 
 **Endpoint:** `POST /api/devoluciones`
 
-**Lógica:**
-1.  El frontend envía un `DevolucionDTO` que contiene los datos generales (ID de usuario, ID de pedido) y una lista de `DetalleDevolucionDTO` (uno por la silla, otro por la mesa).
-2.  `DevolucionController` recibe la solicitud.
-3.  `DevolucionService` crea la entidad `Devolucion` y, en un bucle, crea cada `Detalle_Devolucion`, asociándolo con su `Producto` y con la `Devolucion` padre.
-4.  Gracias a `CascadeType.ALL`, al guardar la `Devolucion`, todos sus detalles se guardan en la misma transacción.
-
-**Diagrama de Secuencia:**
-```mermaid
-sequenceDiagram
-    participant Frontend
-    participant DevolucionController
-    participant DevolucionService
-    participant Database
-
-    Frontend->>+DevolucionController: POST /api/devoluciones (DTO con lista de detalles)
-    DevolucionController->>+DevolucionService: crearDevolucion(devolucionDTO)
-    DevolucionService->>DevolucionService: Construye entidad Devolucion y sus Detalles
-    DevolucionService->>+Database: save(devolucion) [Guarda todo en cascada]
-    Database-->>-DevolucionService: Retorna Devolucion con IDs
-    DevolucionService-->>-DevolucionController: Retorna Devolucion completa
-    DevolucionController-->>-Frontend: 201 Created (JSON de la Devolucion)
+**Ejemplo de Petición (Request Body):**
+```json
+{
+    "usuario_id": 1,
+    "pedido_id": 101,
+    "motivo": "Productos dañados en el envío y uno incorrecto.",
+    "detalles": [
+        {
+            "productoId": 12,
+            "cantidad": 1,
+            "motivo_detalle": "La pata de la silla está rota."
+        },
+        {
+            "productoId": 5,
+            "cantidad": 1,
+            "motivo_detalle": "La mesa es de color nogal, se pidió en roble."
+        }
+    ]
+}
 ```
 
-### 3.2. Añadir un Detalle a una Devolución Existente
-
-El cliente ya había reportado la silla rota, pero ahora se da cuenta de que los tornillos para la mesa no venían en el paquete.
-
-**Endpoint:** `POST /api/devoluciones/{devolucionId}/detalles`
-
-**Lógica:**
-1.  El frontend envía un `DetalleDevolucionDTO` para los tornillos al endpoint específico de la devolución ya creada.
-2.  `DevolucionController` pasa la solicitud al `DetalleDevolucionService`.
-3.  El servicio busca la `Devolucion` existente, crea el nuevo `Detalle_Devolucion` y lo asocia.
-4.  Se guarda el nuevo detalle.
-
-**Diagrama de Secuencia:**
-```mermaid
-sequenceDiagram
-    participant Frontend
-    participant DevolucionController
-    participant DetalleDevolucionService
-    participant Database
-
-    Frontend->>+DevolucionController: POST /api/devoluciones/1/detalles (DTO del detalle)
-    DevolucionController->>+DetalleDevolucionService: crearDetalle(devolucionId, detalleDTO)
-    DetalleDevolucionService->>+Database: findById(devolucionId)
-    Database-->>-DetalleDevolucionService: Retorna la Devolucion
-    DetalleDevolucionService->>DetalleDevolucionService: Crea la entidad Detalle_Devolucion y la asocia
-    DetalleDevolucionService->>+Database: save(detalleDevolucion)
-    Database-->>-DetalleDevolucionService: Retorna el detalle guardado
-    DetalleDevolucionService-->>-DevolucionController: Retorna el nuevo detalle
-    DevolucionController-->>-Frontend: 201 Created (JSON del nuevo detalle)
+**Ejemplo de Respuesta (`201 Created`):**
+```json
+{
+    "statusCode": 201,
+    "message": "Devolución creada exitosamente",
+    "data": {
+        "id": 1,
+        "fecha": "2025-06-19T20:15:00.000+00:00",
+        "motivo": "Productos dañados en el envío y uno incorrecto.",
+        "estado": "PENDIENTE",
+        "detalles": [
+            {
+                "id": 1,
+                "cantidad": 1,
+                "motivo": "La pata de la silla está rota."
+            },
+            {
+                "id": 2,
+                "cantidad": 1,
+                "motivo": "La mesa es de color nogal, se pidió en roble."
+            }
+        ]
+    }
+}
 ```
 
-### 3.3. Eliminar una Devolución Completa
+### 3.2. Obtener una Devolución por ID
 
-El cliente se arrepiente y decide quedarse con los productos, cancelando toda la devolución.
+**Contexto:** Un empleado de atención al cliente necesita revisar los detalles de la devolución anterior para coordinar el reemplazo de los productos.
 
-**Endpoint:** `DELETE /api/devoluciones/{id}`
+**Endpoint:** `GET /api/devoluciones/1`
 
-**Lógica:**
-1.  El frontend envía una solicitud para eliminar la devolución con ID `1`.
-2.  `DevolucionController` llama a `devolucionService.eliminarDevolucion(id)`.
-3.  El servicio invoca a `devolucionRepository.deleteById(id)`.
-4.  Gracias a la configuración `CascadeType.ALL` y `orphanRemoval=true` en la entidad `Devolucion`, la base de datos se encarga de **eliminar automáticamente todos los registros de `Detalle_Devolucion` asociados** a esta devolución. Esto mantiene la integridad de los datos sin necesidad de lógica adicional en el servicio.
+**Ejemplo de Respuesta (`200 OK`):**
+```json
+{
+    "statusCode": 200,
+    "message": "Devolución encontrada",
+    "data": {
+        "id": 1,
+        "fecha": "2025-06-19T20:15:00.000+00:00",
+        "motivo": "Productos dañados en el envío y uno incorrecto.",
+        "estado": "PENDIENTE",
+        "detalles": [
+            {
+                "id": 1,
+                "cantidad": 1,
+                "motivo": "La pata de la silla está rota."
+            },
+            {
+                "id": 2,
+                "cantidad": 1,
+                "motivo": "La mesa es de color nogal, se pidió en roble."
+            }
+        ]
+    }
+}
+```
 
-**Diagrama de Secuencia:**
-```mermaid
-sequenceDiagram
-    participant Frontend
-    participant DevolucionController
-    participant DevolucionService
-    participant Database
+### 3.3. Añadir un Detalle a una Devolución Existente
 
-    Frontend->>+DevolucionController: DELETE /api/devoluciones/1
-    DevolucionController->>+DevolucionService: eliminarDevolucion(1)
-    DevolucionService->>+Database: deleteById(1) [Borra la devolución y sus detalles en cascada]
-    Database-->>-DevolucionService: Confirmación
-    DevolucionService-->>-DevolucionController: void
-    DevolucionController-->>-Frontend: 200 OK (Mensaje de éxito)
+**Contexto:** El cliente, después de crear la devolución, se da cuenta de que también faltaban los tornillos para ensamblar la mesa.
+
+**Endpoint:** `POST /api/devoluciones/1/detalles`
+
+**Ejemplo de Petición (Request Body):**
+```json
+{
+    "productoId": 25, 
+    "cantidad": 1,
+    "motivo_detalle": "Faltan los tornillos para el ensamblaje de la mesa."
+}
+```
+
+**Ejemplo de Respuesta (`201 Created`):**
+```json
+{
+    "statusCode": 201,
+    "message": "Detalle añadido a la devolución 1",
+    "data": {
+        "id": 3,
+        "cantidad": 1,
+        "motivo": "Faltan los tornillos para el ensamblaje de la mesa."
+    }
+}
+```
+
+### 3.4. Eliminar una Devolución Completa
+
+**Contexto:** La carpintería contacta al cliente y le ofrece un gran descuento para que se quede con la mesa de color nogal. El cliente acepta y decide cancelar toda la devolución.
+
+**Endpoint:** `DELETE /api/devoluciones/1`
+
+**Ejemplo de Respuesta (`200 OK`):**
+```json
+{
+    "statusCode": 200,
+    "message": "Devolución eliminada exitosamente"
+}
 ```
 
 ---
