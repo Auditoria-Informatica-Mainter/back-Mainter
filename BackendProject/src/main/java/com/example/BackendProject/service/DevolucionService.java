@@ -1,6 +1,7 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.DevolucionDTO;
+import com.example.BackendProject.dto.DetalleDevolucionDTO;
 import com.example.BackendProject.entity.Devolucion;
 import com.example.BackendProject.entity.Detalle_Devolucion;
 import com.example.BackendProject.entity.Pedido;
@@ -36,6 +37,10 @@ public class DevolucionService {
 
     public List<Devolucion> listarDevoluciones() {
         return devolucionRepository.findAll();
+    }
+
+    public List<Devolucion> listarDevolucionesPorUsuario(Long usuarioId) {
+        return devolucionRepository.findByUsuario_Id(usuarioId);
     }
 
     public Devolucion obtenerDevolucion(Long id) {
@@ -129,10 +134,6 @@ public class DevolucionService {
     // Métodos adicionales
     public List<Devolucion> listarDevolucionesPorEstado(Boolean estado) {
         return devolucionRepository.findByEstado(estado);
-    }
-
-    public List<Devolucion> listarDevolucionesPorUsuario(Long usuarioId) {
-        return devolucionRepository.findByUsuario_Id(usuarioId);
     }
 
     public List<Devolucion> listarDevolucionesPorPedido(Long pedidoId) {

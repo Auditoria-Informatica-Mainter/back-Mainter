@@ -1,14 +1,14 @@
 package com.example.BackendProject.controller;
 
+import com.example.BackendProject.dto.DetalleDevolucionDTO;
 import com.example.BackendProject.dto.DevolucionDTO;
+import com.example.BackendProject.entity.Detalle_Devolucion;
 import com.example.BackendProject.entity.Devolucion;
 import com.example.BackendProject.response.ApiResponse;
-import com.example.BackendProject.service.DevolucionService;
 import com.example.BackendProject.service.DetalleDevolucionService;
-
+import com.example.BackendProject.service.DevolucionService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,45 +25,9 @@ public class DevolucionController {
     private final DevolucionService devolucionService;
     private final DetalleDevolucionService detalleDevolucionService;
 
-    @Operation(summary = "Obtener todas las devoluciones")
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<Devolucion>>> obtenerTodasLasDevoluciones() {
-        List<Devolucion> devoluciones = devolucionService.listarDevoluciones();
-        return new ResponseEntity<>(
-                ApiResponse.<List<Devolucion>>builder()
-                        .statusCode(HttpStatus.OK.value())
-                        .message("Lista de devoluciones")
-                        .data(devoluciones)
-                        .build(),
-                HttpStatus.OK
-        );
-    }
+    // --- Endpoints para Devoluciones ---
 
-    @Operation(summary = "Obtener una devolución por ID")
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Devolucion>> obtenerDevolucionPorId(@PathVariable Long id) {
-        try {
-            Devolucion devolucion = devolucionService.obtenerDevolucion(id);
-            return new ResponseEntity<>(
-                    ApiResponse.<Devolucion>builder()
-                            .statusCode(HttpStatus.OK.value())
-                            .message("Devolución encontrada")
-                            .data(devolucion)
-                            .build(),
-                    HttpStatus.OK
-            );
-        } catch (ResponseStatusException e) {
-            return new ResponseEntity<>(
-                    ApiResponse.<Devolucion>builder()
-                            .statusCode(e.getStatusCode().value())
-                            .message(e.getReason())
-                            .build(),
-                    e.getStatusCode()
-            );
-        }
-    }
-
-    @Operation(summary = "Crear una nueva devolución")
+    @Operation(summary = "Crear una nueva devolución con detalles")
     @PostMapping
     public ResponseEntity<ApiResponse<Devolucion>> crearDevolucion(@RequestBody DevolucionDTO devolucionDTO) {
         try {
@@ -87,11 +51,47 @@ public class DevolucionController {
         }
     }
 
-    @Operation(summary = "Actualizar una devolución existente")
+    @Operation(summary = "Obtener todas las devoluciones")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<Devolucion>>> obtenerTodasLasDevoluciones() {
+        List<Devolucion> devoluciones = devolucionService.listarDevoluciones();
+        return new ResponseEntity<>(
+                ApiResponse.<List<Devolucion>>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Lista de todas las devoluciones")
+                        .data(devoluciones)
+                        .build(),
+                HttpStatus.OK
+        );
+    }
+
+    @Operation(summary = "Obtener una devolución por su ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Devolucion>> obtenerDevolucionPorId(@PathVariable Long id) {
+        try {
+            Devolucion devolucion = devolucionService.obtenerDevolucion(id);
+            return new ResponseEntity<>(
+                    ApiResponse.<Devolucion>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Devolución encontrada")
+                            .data(devolucion)
+                            .build(),
+                    HttpStatus.OK
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<Devolucion>builder()
+                            .statusCode(e.getStatusCode().value())
+                            .message(e.getReason())
+                            .build(),
+                    e.getStatusCode()
+            );
+        }
+    }
+
+    @Operation(summary = "Actualizar una devolución")
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Devolucion>> actualizarDevolucion(
-            @PathVariable Long id,
-            @RequestBody DevolucionDTO devolucionDTO) {
+    public ResponseEntity<ApiResponse<Devolucion>> actualizarDevolucion(@PathVariable Long id, @RequestBody DevolucionDTO devolucionDTO) {
         try {
             Devolucion devolucionActualizada = devolucionService.actualizarDevolucion(id, devolucionDTO);
             return new ResponseEntity<>(
@@ -113,7 +113,7 @@ public class DevolucionController {
         }
     }
 
-    @Operation(summary = "Eliminar una devolución")
+    @Operation(summary = "Eliminar una devolución y sus detalles")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> eliminarDevolucion(@PathVariable Long id) {
         try {
@@ -136,18 +136,91 @@ public class DevolucionController {
         }
     }
 
-    @Operation(summary = "Obtener devoluciones por estado")
-    @GetMapping("/estado/{estado}")
-    public ResponseEntity<ApiResponse<List<Devolucion>>> obtenerDevolucionesPorEstado(@PathVariable Boolean estado) {
-        List<Devolucion> devoluciones = devolucionService.listarDevolucionesPorEstado(estado);
+    // --- Endpoints para Detalles de Devolución como sub-recurso ---
+
+    @Operation(summary = "Listar todos los detalles de una devolución específica")
+    @GetMapping("/{devolucionId}/detalles")
+    public ResponseEntity<ApiResponse<List<Detalle_Devolucion>>> listarDetallesPorDevolucion(@PathVariable Long devolucionId) {
+        List<Detalle_Devolucion> detalles = detalleDevolucionService.listarDetallesPorDevolucion(devolucionId);
         return new ResponseEntity<>(
-                ApiResponse.<List<Devolucion>>builder()
+                ApiResponse.<List<Detalle_Devolucion>>builder()
                         .statusCode(HttpStatus.OK.value())
-                        .message("Devoluciones con estado: " + estado)
-                        .data(devoluciones)
+                        .message("Detalles de la devolución " + devolucionId)
+                        .data(detalles)
                         .build(),
                 HttpStatus.OK
         );
+    }
+
+    @Operation(summary = "Añadir un nuevo detalle a una devolución existente")
+    @PostMapping("/{devolucionId}/detalles")
+    public ResponseEntity<ApiResponse<Detalle_Devolucion>> crearDetalleParaDevolucion(@PathVariable Long devolucionId, @RequestBody DetalleDevolucionDTO detalleDto) {
+        try {
+            Detalle_Devolucion nuevoDetalle = detalleDevolucionService.crearDetalle(devolucionId, detalleDto);
+            return new ResponseEntity<>(
+                    ApiResponse.<Detalle_Devolucion>builder()
+                            .statusCode(HttpStatus.CREATED.value())
+                            .message("Detalle añadido a la devolución " + devolucionId)
+                            .data(nuevoDetalle)
+                            .build(),
+                    HttpStatus.CREATED
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<Detalle_Devolucion>builder()
+                            .statusCode(e.getStatusCode().value())
+                            .message(e.getReason())
+                            .build(),
+                    e.getStatusCode()
+            );
+        }
+    }
+
+    @Operation(summary = "Actualizar un detalle de devolución específico")
+    @PutMapping("/detalles/{detalleId}")
+    public ResponseEntity<ApiResponse<Detalle_Devolucion>> actualizarDetalle(@PathVariable Long detalleId, @RequestBody DetalleDevolucionDTO detalleDto) {
+        try {
+            Detalle_Devolucion detalleActualizado = detalleDevolucionService.actualizarDetalle(detalleId, detalleDto);
+            return new ResponseEntity<>(
+                    ApiResponse.<Detalle_Devolucion>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Detalle de devolución actualizado exitosamente")
+                            .data(detalleActualizado)
+                            .build(),
+                    HttpStatus.OK
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<Detalle_Devolucion>builder()
+                            .statusCode(e.getStatusCode().value())
+                            .message(e.getReason())
+                            .build(),
+                    e.getStatusCode()
+            );
+        }
+    }
+
+    @Operation(summary = "Eliminar un detalle de devolución específico")
+    @DeleteMapping("/detalles/{detalleId}")
+    public ResponseEntity<ApiResponse<Void>> eliminarDetalle(@PathVariable Long detalleId) {
+        try {
+            detalleDevolucionService.eliminarDetalle(detalleId);
+            return new ResponseEntity<>(
+                    ApiResponse.<Void>builder()
+                            .statusCode(HttpStatus.OK.value())
+                            .message("Detalle de devolución eliminado exitosamente")
+                            .build(),
+                    HttpStatus.OK
+            );
+        } catch (ResponseStatusException e) {
+            return new ResponseEntity<>(
+                    ApiResponse.<Void>builder()
+                            .statusCode(e.getStatusCode().value())
+                            .message(e.getReason())
+                            .build(),
+                    e.getStatusCode()
+            );
+        }
     }
 
     @Operation(summary = "Obtener devoluciones por usuario")
@@ -177,7 +250,7 @@ public class DevolucionController {
                 HttpStatus.OK
         );
     }
-    
+
     @Operation(summary = "Procesar una devolución")
     @PostMapping("/{id}/procesar")
     public ResponseEntity<ApiResponse<Devolucion>> procesarDevolucion(@PathVariable Long id) {
