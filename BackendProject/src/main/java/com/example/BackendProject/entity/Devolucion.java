@@ -1,5 +1,6 @@
 package com.example.BackendProject.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,11 +30,13 @@ public class Devolucion {
     // Relación con Usuario (cliente que realiza la devolución)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
+    @JsonBackReference("usuario-devoluciones")
     private Usuario usuario;
     
     // Relación con Pedido (pedido original que se está devolviendo)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
+    @JsonBackReference("pedido-devoluciones")
     private Pedido pedido;
     
     // Relación con los detalles de la devolución

@@ -28,5 +28,5 @@ public class DevolucionDTO {
 
     private Long pedido_id;
 
-    private List<DetalleDevolucionDTO> detalles;
+
 }

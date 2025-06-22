@@ -1,70 +1,77 @@
 package com.example.BackendProject.service;
 
 import com.example.BackendProject.dto.DetalleDevolucionDTO;
+import com.example.BackendProject.dto.DetalleDevolucionResponseDTO;
 import com.example.BackendProject.entity.Detalle_Devolucion;
 import com.example.BackendProject.entity.Detalle_pedido;
 import com.example.BackendProject.entity.Devolucion;
-import com.example.BackendProject.entity.Producto;
 import com.example.BackendProject.repository.DetalleDevolucionRepository;
 import com.example.BackendProject.repository.DetallePedidoRepository;
 import com.example.BackendProject.repository.DevolucionRepository;
-import com.example.BackendProject.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class DetalleDevolucionService {
 
     private final DetalleDevolucionRepository detalleDevolucionRepository;
-    private final ProductoRepository productoRepository;
     private final DevolucionRepository devolucionRepository;
     private final DetallePedidoRepository detallePedidoRepository;
 
-    public List<Detalle_Devolucion> listarTodosLosDetalles() {
-        return detalleDevolucionRepository.findAll();
+
+
+    public List<DetalleDevolucionResponseDTO> listarDetallesPorDevolucion(Long devolucionId) {
+        if (!devolucionRepository.existsById(devolucionId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Devolución no encontrada con ID: " + devolucionId);
+        }
+        return detalleDevolucionRepository.findByDevolucion_Id(devolucionId).stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<Detalle_Devolucion> listarDetallesPorProducto(Long productoId) {
-        return detalleDevolucionRepository.findByProducto_Id(productoId);
+    public DetalleDevolucionResponseDTO obtenerDetalle(Long devolucionId, Long detalleId) {
+        Detalle_Devolucion detalle = detalleDevolucionRepository.findById(detalleId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Detalle de devolución no encontrado con ID: " + detalleId));
+
+        if (!detalle.getDevolucion().getId().equals(devolucionId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El detalle con ID " + detalleId + " no pertenece a la devolución con ID " + devolucionId);
+        }
+        return convertToResponseDTO(detalle);
     }
 
-    public Detalle_Devolucion obtenerDetalle(Long id) {
-        return detalleDevolucionRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Detalle de devolución no encontrado con ID: " + id));
-    }
-
-    public Detalle_Devolucion crearDetalle(Long devolucionId, DetalleDevolucionDTO dto) {
+    @Transactional
+    public DetalleDevolucionResponseDTO crearDetalle(Long devolucionId, DetalleDevolucionDTO detalleDevolucionDTO) {
         Devolucion devolucion = devolucionRepository.findById(devolucionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Devolución no encontrada con ID: " + devolucionId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Devolución no encontrada"));
 
-        Producto producto = productoRepository.findById(dto.getProductoId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado con ID: " + dto.getProductoId()));
+        Detalle_pedido detallePedido = detallePedidoRepository.findById(detalleDevolucionDTO.getDetallePedidoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Detalle de pedido no encontrado"));
 
-        Detalle_Devolucion detalle = new Detalle_Devolucion();
-        detalle.setDevolucion(devolucion);
-        detalle.setProducto(producto);
-        detalle.setCantidad(dto.getCantidad());
-        detalle.setMotivo_detalle(dto.getMotivo_detalle());
-        
-        // Asumiendo que Producto tiene un método getPrecioUnitario()
-        if(producto.getPrecioUnitario() != null) {
-            detalle.setImporte_Total(producto.getPrecioUnitario() * dto.getCantidad());
+        if (detalleDevolucionDTO.getCantidad() > detallePedido.getCantidad()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cantidad a devolver no puede ser mayor que la cantidad del pedido.");
         }
 
-        if (dto.getDetallePedidoId() != null) {
-            Detalle_pedido detallePedido = detallePedidoRepository.findById(dto.getDetallePedidoId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Detalle de pedido no encontrado con ID: " + dto.getDetallePedidoId()));
-            detalle.setDetalle_pedido(detallePedido);
-        }
+        Detalle_Devolucion nuevoDetalle = Detalle_Devolucion.builder()
+                .devolucion(devolucion)
+                .detalle_pedido(detallePedido)
+                .cantidad(detalleDevolucionDTO.getCantidad())
+                .motivo_detalle(detalleDevolucionDTO.getMotivo_detalle())
+                .build();
 
-        return detalleDevolucionRepository.save(detalle);
+        Detalle_Devolucion guardado = detalleDevolucionRepository.save(nuevoDetalle);
+
+        return convertToResponseDTO(guardado);
     }
 
+    @Transactional
     public void eliminarDetalle(Long devolucionId, Long detalleId) {
         Detalle_Devolucion detalle = detalleDevolucionRepository.findById(detalleId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Detalle de devolución no encontrado con ID: " + detalleId));
@@ -74,5 +81,16 @@ public class DetalleDevolucionService {
         }
 
         detalleDevolucionRepository.deleteById(detalleId);
+    }
+
+    private DetalleDevolucionResponseDTO convertToResponseDTO(Detalle_Devolucion detalle) {
+        return DetalleDevolucionResponseDTO.builder()
+                .id(detalle.getId())
+                .detallePedidoId(detalle.getDetalle_pedido().getId())
+                .nombreProducto(detalle.getDetalle_pedido().getProducto().getNombre())
+                .cantidad(detalle.getCantidad())
+                .precioUnitario(detalle.getDetalle_pedido().getProducto().getPrecioUnitario())
+                .motivo_detalle(detalle.getMotivo_detalle())
+                .build();
     }
 }

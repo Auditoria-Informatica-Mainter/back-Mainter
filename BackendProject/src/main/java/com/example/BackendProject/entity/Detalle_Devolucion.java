@@ -23,20 +23,14 @@ public class Detalle_Devolucion {
     private Double importe_Total;
     private String motivo_detalle; // Motivo específico para este producto
     
-    // Relación con Producto
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "producto_id")
-    private Producto producto;
-    
-    // Relación con Devolución
     // Relación con Devolución
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "devolucion_id")
+    @JoinColumn(name = "devolucion_id", nullable = false)
     @JsonBackReference("devolucion-detalles")
     private Devolucion devolucion;
     
-    // Opcional: Relación con el detalle del pedido original
+    // Relación obligatoria con el detalle del pedido original
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "detalle_pedido_id")
+    @JoinColumn(name = "detalle_pedido_id", nullable = false)
     private Detalle_pedido detalle_pedido;
 }

@@ -3,6 +3,7 @@ package com.example.BackendProject.entity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import com.example.BackendProject.entity.Devolucion;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -54,11 +55,15 @@ public class Pedido {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("usuario-pedidos")
     private Usuario usuario;
     
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("pedido-detalles")
     private List<Detalle_pedido> detalle_pedidos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference("pedido-devoluciones")
+    private List<Devolucion> devoluciones = new ArrayList<>();
 
 }

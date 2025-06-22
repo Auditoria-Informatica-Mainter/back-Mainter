@@ -1,6 +1,7 @@
 package com.example.BackendProject.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -56,6 +57,10 @@ public class Producto {
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Orden_Producto> ordenesProducto = new ArrayList<>();
+
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("producto-detalles")
+    private List<Detalle_pedido> detallePedidos = new ArrayList<>();
     
     /**
      * Constructor con parámetros principales para crear un producto
