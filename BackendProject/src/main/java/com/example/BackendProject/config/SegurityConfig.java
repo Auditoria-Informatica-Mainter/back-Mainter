@@ -53,8 +53,17 @@ public class SegurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		
-		// Permitir todos los orígenes
-		config.addAllowedOriginPattern("*");
+		// Permitir orígenes específicos desde variable de entorno
+		String allowedOrigins = System.getenv("ALLOWED_ORIGINS");
+		if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+			for (String origin : allowedOrigins.split(",")) {
+				config.addAllowedOrigin(origin.trim());
+			}
+		} else {
+			// Fallback para desarrollo
+			config.addAllowedOrigin("http://localhost:4200");
+			config.addAllowedOrigin("https://localhost:4200");
+		}
 		
 		// Configurar métodos HTTP permitidos
 		config.addAllowedMethod("*");
