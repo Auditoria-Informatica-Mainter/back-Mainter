@@ -35,6 +35,8 @@ public class SegurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// Permitir explícitamente Swagger UI y otros endpoints necesarios
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
+						// Permitir health check para deployments
+						.requestMatchers("/actuator/health", "/actuator/info").permitAll()
 						.requestMatchers("/auth/**").permitAll()
 						.anyRequest().authenticated()
 				)
