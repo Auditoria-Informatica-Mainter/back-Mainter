@@ -9,7 +9,7 @@ services:
     startCommand: ""
     envVars:
       - key: SERVER_PORT
-        value: 8080
+        value: 8081
       - key: JAVA_OPTS
         value: "-Xmx512m -Xms256m"
       - key: SPRING_PROFILES_ACTIVE

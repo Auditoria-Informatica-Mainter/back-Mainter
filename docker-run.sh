@@ -12,13 +12,13 @@ if [ $? -eq 0 ]; then
     # Ejecutar el contenedor
     docker run -d \
         --name mainter-backend-container \
-        -p 8080:8080 \
+        -p 8081:8081 \
         -e SPRING_PROFILES_ACTIVE=prod \
         mainter-backend
     
     if [ $? -eq 0 ]; then
-        echo "✅ Aplicación ejecutándose en http://localhost:8080/mrp"
-        echo "📊 Health check: http://localhost:8080/mrp/actuator/health"
+        echo "✅ Aplicación ejecutándose en http://localhost:8081/mrp"
+        echo "📊 Health check: http://localhost:8081/mrp/actuator/health"
         echo ""
         echo "Para detener la aplicación:"
         echo "docker stop mainter-backend-container"

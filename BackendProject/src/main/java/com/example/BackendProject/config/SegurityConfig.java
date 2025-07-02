@@ -1,7 +1,6 @@
 package com.example.BackendProject.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,9 +27,6 @@ public class SegurityConfig {
 	@Autowired
 	private AuthenticationProvider authenticationProvider;
 
-	@Value("${ALLOWED_ORIGINS:http://localhost:4200,https://front-mainter.vercel.app/mrp}")
-	private String allowedOrigins;
-
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
@@ -39,8 +35,6 @@ public class SegurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						// Permitir explícitamente Swagger UI y otros endpoints necesarios
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
-						// Permitir health check para deployments
-						.requestMatchers("/actuator/health", "/actuator/info").permitAll()
 						.requestMatchers("/auth/**").permitAll()
 						.anyRequest().authenticated()
 				)
@@ -57,29 +51,19 @@ public class SegurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		
-		// Leer orígenes permitidos de variable de entorno
-		String[] origins = allowedOrigins.split(",");
-		for (String origin : origins) {
-			config.addAllowedOrigin(origin.trim());
-		}
+		// Permitir todos los orígenes
+		config.addAllowedOriginPattern("*");
 		
 		// Configurar métodos HTTP permitidos
-		config.addAllowedMethod("GET");
-		config.addAllowedMethod("POST");
-		config.addAllowedMethod("PUT");
-		config.addAllowedMethod("DELETE");
-		config.addAllowedMethod("OPTIONS");
+		config.addAllowedMethod("*");
 		
-		// Permitir headers específicos
-		config.addAllowedHeader("Content-Type");
-		config.addAllowedHeader("Authorization");
-		config.addAllowedHeader("X-Requested-With");
-		config.addAllowedHeader("Accept");
+		// Permitir todos los headers
+		config.addAllowedHeader("*");
 		
 		// Exponer headers necesarios
 		config.addExposedHeader("Authorization");
 		
-		// Permitir credenciales solo para orígenes específicos
+		// Permitir credenciales
 		config.setAllowCredentials(true);
 		
 		// Tiempo de caché para respuestas pre-flight

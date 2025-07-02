@@ -42,15 +42,15 @@ USER app
 COPY --from=build --chown=app:app /app/target/*.jar app.jar
 
 # Exponer el puerto (Render detecta automáticamente el puerto)
-EXPOSE 8080
+EXPOSE 8081
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/mrp/actuator/health || exit 1
+  CMD curl -f http://localhost:8081/mrp/actuator/health || exit 1
 
 # Variables de entorno por defecto (optimizadas para 512MB)
 ENV JAVA_OPTS="-Xmx384m -Xms128m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
-ENV SERVER_PORT=8080
+ENV SERVER_PORT=8081
 
 # Comando para ejecutar la aplicación
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
