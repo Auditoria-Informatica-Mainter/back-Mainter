@@ -48,8 +48,8 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD curl -f http://localhost:8080/mrp/actuator/health || exit 1
 
-# Variables de entorno por defecto
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
+# Variables de entorno por defecto (optimizadas para 512MB)
+ENV JAVA_OPTS="-Xmx384m -Xms128m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 ENV SERVER_PORT=8080
 
 # Comando para ejecutar la aplicación
