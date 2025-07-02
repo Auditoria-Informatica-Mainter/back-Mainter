@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: mainter-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free # Puedes cambiar a 'starter' o 'standard' si necesitas más recursos
+    branch: main # Cambia por tu rama principal
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: SERVER_PORT
+        value: 8080
+      - key: JAVA_OPTS
+        value: "-Xmx512m -Xms256m"
+      - key: SPRING_PROFILES_ACTIVE
+        value: "prod"
+      # Agrega aquí tus variables de entorno para la base de datos
+      # - key: DATABASE_URL
+      #   value: "postgresql://user:password@host:port/database"
+      # - key: JWT_SECRET
+      #   value: "your-jwt-secret"
+    healthCheckPath: "/mrp/actuator/health"
+    autoDeploy: true

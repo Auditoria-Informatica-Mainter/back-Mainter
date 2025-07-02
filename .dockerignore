@@ -1,0 +1,47 @@
+# Archivos y directorios a ignorar durante el build de Docker
+
+# Directorios de build
+target/
+build/
+out/
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+app-log.txt
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Scripts locales
+run-app.bat
+run-maven.bat
+
+# Documentación (opcional, puedes incluirla si la necesitas)
+*.md
+
+# Node modules (si tienes frontend)
+node_modules/
+
+# Variables de entorno locales
+.env
+.env.local
