@@ -1,0 +1,76 @@
+# Backup de Configuración del Sistema
+# ARCHIVO SENSIBLE - CONTIENE CREDENCIALES EN TEXTO PLANO
+# Fecha: 2024-12-15
+
+# Configuración de Base de Datos
+database.host=prod-db.company.internal
+database.port=3306
+database.name=mrp_system
+database.username=db_admin
+database.password=SuperSecretDBPass2024!
+database.pool.size=20
+
+# JWT Configuration
+jwt.secret=myJWTSecretKeyThatShouldNeverBeExposed2024
+jwt.expiration=86400
+jwt.refresh.expiration=604800
+
+# API Keys de Servicios Externos
+payment.api.key=pk_live_1234567890abcdef
+payment.secret.key=sk_live_abcdef1234567890
+payment.webhook.secret=whsec_payment_secret_2024
+
+email.service.key=key_email_987654321
+email.service.secret=secret_email_123456789
+email.smtp.host=smtp.company.com
+email.smtp.username=noreply@company.com
+email.smtp.password=EmailSmtpPass2024!
+
+sms.service.key=sms_api_key_2024
+sms.service.secret=sms_secret_2024
+
+# Storage Configuration
+aws.access.key=AKIAIOSFODNN7EXAMPLE
+aws.secret.key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+aws.s3.bucket=company-production-files
+aws.region=us-east-1
+
+# Encryption Keys
+aes.encryption.key=AES256-MasterKey-2024-Production
+rsa.private.key=-----BEGIN PRIVATE KEY-----MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7...
+rsa.public.key=-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu...
+
+# Configuración de Servicios Internos
+internal.admin.username=sysadmin
+internal.admin.password=SysAdmin2024!
+internal.monitoring.token=monitor_token_2024_secret
+
+# Configuración de Red
+allowed.ips=192.168.1.0/24,10.0.0.0/8,172.16.0.0/12
+internal.network=10.0.0.0/8
+dmz.network=192.168.100.0/24
+
+# Configuración de Logs
+log.level=DEBUG
+log.sensitive.data=true
+log.file.path=/var/log/company/application.log
+log.database.queries=true
+
+# Configuración de Backup
+backup.database.frequency=daily
+backup.files.frequency=weekly
+backup.retention.days=30
+backup.ftp.host=backup.company.internal
+backup.ftp.username=backup_user
+backup.ftp.password=BackupUser2024!
+
+# URLs de Servicios Críticos
+internal.api.url=http://internal-api.company.local:8080
+admin.panel.url=http://admin.company.local:9090
+monitoring.url=http://monitoring.company.local:3000
+
+# Configuración de Seguridad (DESHABILITADA PARA DEBUG)
+security.csrf.enabled=false
+security.cors.enabled=false
+security.headers.enabled=false
+security.ssl.required=false

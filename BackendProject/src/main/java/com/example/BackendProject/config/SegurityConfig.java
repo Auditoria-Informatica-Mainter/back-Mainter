@@ -37,11 +37,14 @@ public class SegurityConfig {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						// Permitir health check para deployments (CRÍTICO para Koyeb)
-						.requestMatchers("/actuator/health", "/actuator/info").permitAll()
-						// Permitir explícitamente Swagger UI y otros endpoints necesarios
+						// VULNERABILIDAD 1: Endpoints expuestos sin autenticación (detectable con Nmap/Nessus)
+						.requestMatchers("/actuator/**").permitAll() // Expone todos los actuator endpoints
 						.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/webjars/**").permitAll()
 						.requestMatchers("/auth/**").permitAll()
+						// VULNERABILIDAD 2: Endpoints de administración sin protección
+						.requestMatchers("/admin/**", "/debug/**", "/test/**").permitAll()
+						// VULNERABILIDAD 3: Directorio backup expuesto
+						.requestMatchers("/backup/**", "/config/**").permitAll()
 						.anyRequest().authenticated()
 				)
 				.sessionManagement(sess -> sess
@@ -57,33 +60,23 @@ public class SegurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
 		
-		// Leer orígenes permitidos de variable de entorno
-		String[] origins = allowedOrigins.split(",");
-		for (String origin : origins) {
-			config.addAllowedOrigin(origin.trim());
-		}
+		// VULNERABILIDAD 4: CORS permisivo - permite cualquier origen (detectable con herramientas web)
+		config.addAllowedOriginPattern("*");
+		config.setAllowCredentials(false); // Cambiado para permitir *
 		
 		// Configurar métodos HTTP permitidos
-		config.addAllowedMethod("GET");
-		config.addAllowedMethod("POST");
-		config.addAllowedMethod("PUT");
-		config.addAllowedMethod("DELETE");
-		config.addAllowedMethod("OPTIONS");
+		config.addAllowedMethod("*"); // Permite todos los métodos HTTP
 		
-		// Permitir headers específicos
-		config.addAllowedHeader("Content-Type");
-		config.addAllowedHeader("Authorization");
-		config.addAllowedHeader("X-Requested-With");
-		config.addAllowedHeader("Accept");
+		// VULNERABILIDAD 5: Headers permisivos
+		config.addAllowedHeader("*"); // Permite todos los headers
 		
-		// Exponer headers necesarios
+		// Exponer headers que pueden contener información sensible
 		config.addExposedHeader("Authorization");
+		config.addExposedHeader("X-Debug-Info");
+		config.addExposedHeader("X-Server-Version");
 		
-		// Permitir credenciales solo para orígenes específicos
-		config.setAllowCredentials(true);
-		
-		// Tiempo de caché para respuestas pre-flight
-		config.setMaxAge(3600L);
+		// Tiempo de caché extendido
+		config.setMaxAge(86400L); // 24 horas
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);

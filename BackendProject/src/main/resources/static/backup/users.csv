@@ -1,0 +1,16 @@
+id,username,password,email,role,department,phone,created_date,last_login,status
+1,admin,admin123,admin@company.com,ADMIN,IT,+52-555-0101,2024-01-15,2024-12-15 10:30:00,active
+2,root,root2024,root@company.com,SUPER_ADMIN,IT,+52-555-0102,2024-01-15,2024-12-14 15:45:00,active
+3,manager,manager456,manager@company.com,MANAGER,Operations,+52-555-0103,2024-02-01,2024-12-13 09:15:00,active
+4,developer,dev123,dev@company.com,DEVELOPER,IT,+52-555-0104,2024-02-15,2024-12-12 14:20:00,active
+5,operator,op2024,operator@company.com,OPERATOR,Production,+52-555-0105,2024-03-01,2024-12-11 11:30:00,active
+6,analyst,analyst789,analyst@company.com,ANALYST,Business,+52-555-0106,2024-03-15,2024-12-10 16:45:00,active
+7,guest,guest,guest@company.com,GUEST,External,+52-555-0107,2024-04-01,2024-12-09 08:00:00,active
+8,auditor,audit2024,auditor@company.com,AUDITOR,Compliance,+52-555-0108,2024-04-15,2024-12-08 13:20:00,active
+9,backup_user,backup123,backup@company.com,SERVICE,IT,+52-555-0109,2024-05-01,2024-12-07 19:30:00,active
+10,monitor,monitor456,monitor@company.com,SERVICE,IT,+52-555-0110,2024-05-15,2024-12-06 07:45:00,active
+11,test_user,test123,test@company.com,TEST,QA,+52-555-0111,2024-06-01,2024-12-05 12:15:00,active
+12,api_service,api789,api@company.com,API,IT,+52-555-0112,2024-06-15,2024-12-04 17:00:00,active
+13,temp_admin,temp2024,temp@company.com,TEMP_ADMIN,IT,+52-555-0113,2024-07-01,2024-12-03 14:25:00,inactive
+14,contractor,contract123,contractor@company.com,CONTRACTOR,External,+52-555-0114,2024-07-15,2024-12-02 10:10:00,active
+15,intern,intern456,intern@company.com,INTERN,Multiple,+52-555-0115,2024-08-01,2024-12-01 15:35:00,active
